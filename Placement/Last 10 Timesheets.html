@@ -1,0 +1,85 @@
+<div class="container" style="min-height: 593px;">
+    <div class="page-heading">
+      {% block breadcrumbs %}
+        {% include 'Breadcrumbs' %}
+      {% endblock %}
+    {% block title %}
+      {% include 'Page Header' %}
+    {% endblock %}
+   </div>
+   <div class="row" id="MainContainer" style="display: none;" >
+    <div class="col-md-12">
+     {% block main %}
+      {% include 'Page Copy' %}
+      <div id="PageContent">
+        {% if page.adx_entitylist %}
+           {% include 'entity_list' key:page.adx_entitylist.id %}
+        {% endif %}
+        
+        {% if page.adx_entityform %}
+          {% entityform id: page.adx_entityform.id %}
+        {% endif %}
+        
+        {% if page.adx_webform %}
+          {% webform id: page.adx_webform.id %}
+        {% endif %}
+      </div>  
+     {% endblock %}
+    </div>
+   </div>
+  </div>
+<style type="text/css">
+</style>
+<script type="text/javascript">
+  var viewloaded = false;
+  $(document).ready(function () {
+    var NeedRefresh = true;
+    $(".entity-grid[data-selected-view='bb3a2aef-5936-e811-80cd-00155d003499']").on("loaded", function () {
+
+      //Create a modal point to a web template that will caculate Hours per Placement
+      var html = '<div class="modal fade" id="CrimsonModal1"> <div class="modal-dialog"> <div class="modal-content"> <div class="modal-header"> <button aria-label="Close" class="form-close" data-dismiss="modal" tabindex="0" title="Close" type="button"> <span aria-hidden="true">×</span> <span class="sr-only">Close</span> </button> <h1 class="modal-title" title="Total Hours per Placement"> </span>Total Hours per Placement</h1> </div> <div class="modal-body"> <div style="border-width: 0px;width: 100%;height: 543px;"> <div id="CrimsonLoading1" class="form-loading" style=""> <span class="fa fa-spinner fa-spin fa-4x" aria-hidden="true" data-original-title="" title=""></span> </div> <iframe id="CrimsonIframe1" style="display: none;border-width: 0px;width: 100%;height: 543px;"></iframe> </div> </div> </div> </div> </div>';
+      html += '<a href="#" class="btn btn-primary" title="Show me Hours by Placement" id="ViewHours" style="float: left;">Show me Hours by Placement</a>';
+
+      if ($("#ViewHours").length == 0) {
+        $('.pull-right.toolbar-actions').children('.input-group.pull-left').prepend(html);
+        $("#ViewHours").click(function () {
+          var directurl = location.origin + "/en-US/placement/total-hrs-per-placement"
+          $("#CrimsonIframe1").attr("src", directurl);
+          var datapage = "/_portal/modal-form-template-path/7b138792-1090-45b6-9241-8f8d96d8c372";
+          $("#CrimsonIframe1").attr("data-page", datapage);
+          $('#CrimsonModal1').modal("show");
+        });
+      }
+
+      if ($("tr[data-entity='ccl1008_timesheet']").length > 0) 
+      {
+         $("tr[data-entity='ccl1008_timesheet']").each(function () {
+           if ($(this).children('[data-attribute="statuscode"]').data("value") && $(this).children('[data-attribute="statuscode"]').data("value")['Value']) {
+               var statusvalue = $(this).children('[data-attribute="statuscode"]').data("value")['Value'];
+              if (statusvalue == "890130002" || statusvalue == "1") { //draft reject
+                   $(this).children('td:last').children().children('ul').children('li').eq(1).show();//In Progress Rejected can be updated and submitted
+            }
+					else
+					{
+						 $(this).children('td:last').children().children('ul').children('li').eq(1).hide();//In Progress Rejected can be updated and submitted
+          }
+        }
+				});
+      }
+
+      //Remove the pagination to only show 10 records
+      $('.view-pagination').remove();
+
+      //Disable sort on th
+      // setTimeout(function () {
+        $(this).children('.view-grid').children('table').children('thead').children('tr').children('th').children('a').unbind();
+        $(this).children('.view-grid').children('table').children('thead').children('tr').children('th').children('a').css('cursor','initial');
+        $(this).children('.view-grid').children('table').children('thead').children('tr').children('th').children('a').css('text-decoration','none');
+      // }, 500);       
+
+      $(".fa.fa-arrow-up").remove();  
+      
+      $("#MainContainer").show();
+    });
+  });
+</script>

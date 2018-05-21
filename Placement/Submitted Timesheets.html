@@ -1,0 +1,126 @@
+{% if request.params['id'] %}
+{% assign id = request.params['id'] %}
+{% fetchxml StudentPlacements %}  
+<fetch version="1.0" output-format="xml-platform" mapping="logical" distinct="false" returntotalrecordcount="true">
+  <entity name="ccl1008_pmplacement">
+    <attribute name="ccl1008_pmplacementid" />
+    <order attribute="createdon" descending="true" />
+    <filter type="and">
+      <condition attribute="ccl1008_mentor" operator="eq" uitype="contact" value="{{id}}" />
+      <condition attribute="statecode" operator="eq" value="0" />
+    </filter>
+  </entity>
+</fetch>
+{% endfetchxml%} 
+{% endif %}
+
+<div class="container" style="min-height: 593px;">
+    <div class="page-heading">
+      {% block breadcrumbs %}
+        {% include 'Breadcrumbs' %}
+      {% endblock %}
+    {% block title %}
+      {% include 'Page Header' %}
+    {% endblock %}
+   </div>
+   <div class="row" id="MainContainer" style="display: none;" >
+    {% if StudentPlacements.results.total_record_count > 0 %}
+    <div class="col-md-12">
+     {% block main %}
+      {% include 'Page Copy' %}
+      <div id="PageContent">
+        {% if page.adx_entitylist %}
+           {% include 'entity_list' key:page.adx_entitylist.id %}
+        {% endif %}
+        
+        {% if page.adx_entityform %}
+          {% entityform id: page.adx_entityform.id %}
+        {% endif %}
+        
+        {% if page.adx_webform %}
+          {% webform id: page.adx_webform.id %}
+        {% endif %}
+      </div>  
+     {% endblock %}
+     <div id="ApprovedTimesheets">
+        {% entityform id: "89E3D154-C14A-E811-811F-70106FAAE7F1" %}
+     </div>
+    </div>
+    {% else %}
+    <div class="col-md-12">
+        {% block main %}
+         {% include 'Page Copy' %}
+         <div id="PageContent">
+            <div class="alert alert-warning alert-dismissable">There are no records to display.</div>
+         </div>  
+        {% endblock %}
+    </div>   
+    {% endif %}
+   </div>
+  </div>
+<style type="text/css">
+</style>
+<script type="text/javascript">
+    var viewloaded = false;
+    $(document).ready(function () {
+        {% unless StudentPlacements.results.total_record_count > 0 %}
+        $("#MainContainer").show();
+        {% endunless %}
+        var NeedRefresh = true;
+        $(".entity-grid[data-selected-view='f3070a13-e936-e811-80cd-00155d003499']").on("loaded", function () {
+            if (!viewloaded) {
+                $("thead").first().children().prepend("<th id='selectth' width='80px' align='center' style='width: 80px;'>Select</th>");
+                viewloaded = true;
+            }
+
+            $("thead").next().children().each(function() {
+                var html1 = "<td align='center' style='width: 80px;'><input type='checkbox' class='checkbox' id='checkbox_"+$(this).data("id")+"' name='Approved' value='"+$(this).data("id")+"'></td>";
+                $(this).prepend(html1);		
+                if(sessionStorage.getItem($(this).data("id"))=="true")
+                {
+                    $(this).hide();                    
+                }
+            });
+            
+            $('input:checkbox[name="Approved"]').click(function () {
+                var Guid=""
+                $('input:checkbox[name="Approved"]:checked').each(function (index, item) {
+                    Guid+=$(this).val();
+                    Guid+=",";
+                });
+                Guid=(Guid.substring(Guid.length-1)==',')?Guid.substring(0,Guid.length-1):Guid;
+                $("#ccl1008_approvedtimesheets").val(Guid);
+            });
+
+            if (NeedRefresh) {
+                {% if StudentPlacements.results.total_record_count > 0 %}
+                {% for citem in StudentPlacements.results.entities %}
+                setTimeout(function () {
+                if ($("input[value='{" + "{{citem.ccl1008_pmplacementid}}" + "}']").prop("checked") == false) {
+                    $("input[value='{" + "{{citem.ccl1008_pmplacementid}}" + "}']").click();
+                    }
+                }, 200);
+                // console.log($("input[value='{" + "{{citem.ccl1008_pmplacementid}}" + "}']"));
+                // console.log($("input[value='{" + "{{citem.ccl1008_pmplacementid}}" + "}']").prop("checked"));
+                // console.log("{{StudentPlacements.results.total_record_count}}");
+                {% endfor %}
+                {% endif %}
+                setTimeout(function () {
+                    $(".btn-entitylist-filter-submit").click();
+                    $("#MainContainer").show();
+                }, 100);
+            }
+            NeedRefresh = false;
+        });
+
+        $('.btn-approve').click(function () {
+            var arr = $("#ccl1008_approvedtimesheets").val().split(',');
+            for(i = 0; i < arr.length; i++) {
+                sessionStorage.setItem(arr[i], "true");
+            } 
+        });
+        
+        $("#ccl1008_approvedtimesheets_label").parent().parent().parent().parent().parent().parent().parent().parent().hide();
+        $("#EntityListbad78335-934a-e811-811f-70106faae7f1").hide();
+    });
+</script>

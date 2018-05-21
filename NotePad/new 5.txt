@@ -1,0 +1,45 @@
+1.Create a new View of Student Placement:
+Portal -  My Placement Needs Approval
+2.Create Entity List:
+Student Placement - My Placement Needs Approval
+Student Placement - All Placement Needs Approval
+3.Create new web page:
+All Placements need approval
+My Placements need approval
+2.Create Entity Form:
+Student Placement - View Placements
+Student Placement - Reject
+3.Create a new quick view form of contact
+Portal - Email Quick View Form
+4.Create a new quick view form of ccl1008_pmplacementblock
+Portal - Start Date End Date Quick View Form
+5.Deploy Placement Status Records to Online
+6.Create workflows:
+Approve Student Placement
+Pass Student Placement To Placements Team For Approval
+7.Write Js on Entity Form Student Placement - View Placements to show the Download PDF button
+8.Write JS on Web page:
+All Placements need approval
+My Placements need approval
+to show the 
+View only my Students
+View All Students
+button
+
+Testing note：
+The 2 views use the start date on Placement Block to filter.
+If the start date on Placement Block is in the future then the Student Placements will show on the list.
+My Placements need approval use the Academic field on WBL Module on Student Placements.
+The view only shows the Student Placement which's Academic contact is the current login contact.
+
+The 2 Views only show the the Student Placement which's Placements Status is Ready For Placement
+When you click Approve the Status will changed to In Progress
+When you click Reject the Status will changed to Placement Rejected
+
+Testing URL:
+https://uonprod.microsoftcrmportals.com/en-US/placement/all-placements-need-approval/
+https://uonprod.microsoftcrmportals.com/en-US/placement/my-placements-need-approval/
+
+
+need to Deploy Placement Status Records
+

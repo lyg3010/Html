@@ -1,0 +1,25 @@
+952B9C03-D966-E711-80FC-70106FAA3331  TPA.Crimson #
+
+ Placements Team
+ 
+ 
+ CWI-014575 Mentor - Review and sign off student timesheets
+ 
+ 这个item我理解了一下需求，林总
+ 
+ Timesheet signoff can be completed by the assigned mentor, the secondry mentor, the placement admin, the academic or the placements team.. While the sign off request email will go to the linked mentor the timesheet will appear on the portal page of any mentor associated with the organisation that owns the placement.
+ 关于这个我的理解是crm里面生成的url上会附一个team的id，然后这个页面显示所有placement的owner是该team的timesheet
+ 
+ When a timesheet is signed off it will record time, date and contact that signed it off. 
+ 关于这点是不是要在timesheet上新建两个字段？sign off date 和 sign off contact
+ 
+ The email that is sent to the primary mentor will include an approve button which would enable them to sign off the timesheet without logging in. In order to not approve some of the timesheet login would be required for selection and reasoning, rejected timesheets are returned to the student. 
+ 这点是不是说未登录状态下只能查看detail,只有登陆了才能approve和reject？
+ 
+ 
+ Timesheets will have an expiry date of 1 month from the end of the placement. The placements team will be able to override this date.
+ 	Timesheets will only be viewable in this list up to 1 month past the end of the placement. After this time they will change to an expired status.
+ 是不是要在timesheet上新建一个Timesheet expiry date 字段？在timesheet创建时通过workflow设成placement end date 加一个月，然后还要写一个console app来每天判断expiry date日期是否小于今天，小于的话吧timesheet状态改成expired？
+ 
+ 	Clicking the approve all button changes the status of all marked time sheets to approved
+ 批量批准我需要在contact上建一个Approved Timesheets的不可搜索字段

@@ -1,0 +1,123 @@
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <script type="text/javascript">
+    </script>
+    <title>Last 10 Timesheets&nbsp;· University of Northampton</title>
+    <script src="/_resources/getresourcemanager?lang=en-US"></script>
+    <script type="text/javascript">
+        // Fix for incorrect viewport width setting in IE 10 on Windows Phone 8.
+        if (navigator.userAgent.match(/IEMobile\/10\.0/)) {
+            var msViewportStyle = document.createElement("style");
+            msViewportStyle.appendChild(document.createTextNode("@-ms-viewport{width:auto!important}"));
+            document.getElementsByTagName("head")[0].appendChild(msViewportStyle);
+        }
+    </script>
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+    <link href="/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/glyphicons-font-awesome-migrate.min.css" rel="stylesheet">
+    <link href="/css/default.bundle.css?v=pIcEkjUVkU9fY9WvVvEn2Vp6xWWFrbMTk_9QYu8vIy81" rel="stylesheet">
+    <!--[if lt IE 9]>
+        <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <!--[if lt IE 10]>
+        <script src="~/js/formdata.js"></script>
+    <![endif]-->
+    <link href="/theme.css" rel="stylesheet">
+    <style>
+        .cke {
+            visibility: hidden;
+        }
+    </style>
+</head>
+
+{% fetchxml Timesheets %}
+<fetch version="1.0" output-format="xml-platform" mapping="logical" distinct="false" returntotalrecordcount="true" count="10">
+    <entity name="ccl1008_timesheet">
+        <attribute name="ccl1008_startdate" />
+        <attribute name="ccl1008_hoursworked" />
+        <attribute name="statuscode" />
+        <attribute name="ccl1008_studentid" />
+        <attribute name="ccl1008_placementid" />
+        <attribute name="ccl1008_timesheetid" />
+        <order attribute="ccl1008_startdate" descending="true" />
+        <filter type="and">
+            <condition attribute="statecode" operator="eq" value="0" />
+            <condition attribute="statuscode" operator="in">
+                <value>890130000</value>
+                <value>890130001</value>
+                <value>1</value>
+            </condition>
+            <condition attribute="ccl1008_studentid" operator="eq" value="{{user.id}}" />
+        </filter>
+    </entity>
+</fetch>
+{% endfetchxml%}
+
+<body>
+    <table id="TotalHoursTable" aria-live="polite" aria-relevant="additions" role="grid" tabindex="0" class="table table-striped table-fluid">
+        <thead>
+            <tr>
+                <th style="width:50%;">
+                    Placement
+                </th>
+                <th style="width:50%;">
+                    Total Hours
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+
+</body>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        // revceive the hours from template fetch
+        var name_arr = [];
+        var hour_arr = [];
+        var items = "";
+        {% for Timesheet in Timesheets.results.entities %}
+        {% if Timesheet.statuscode.value != 1 %}
+        //not draft
+        name_arr.push("{{Timesheet.ccl1008_placementid.name}}");
+        hour_arr.push(parseFloat("{{Timesheet.ccl1008_hoursworked}}"));
+        {% endif %}
+        {% endfor %}
+
+        // merge the hours with same placement
+        var new_name_arr = [];
+        var new_hour_arr = [];
+        for (var i = 0; i < name_arr.length; i++) {
+            if ($.inArray(name_arr[i], new_name_arr) == -1) {
+                new_name_arr.push(name_arr[i]);
+                new_hour_arr.push(hour_arr[i]);
+            }
+            else {
+                new_hour_arr[$.inArray(name_arr[i], new_name_arr)] += hour_arr[i];
+            }
+        }
+
+        //Create the table lines
+        var HTML = "";
+        for (var i = 0; i < new_name_arr.length; i++) {
+            HTML += '<tr>';
+            HTML += '<td data-th="Placement">' + new_name_arr[i] + '</td>';
+            HTML += '<td data-th="Total Hours">' + new_hour_arr[i] + '</td>';
+            HTML += '</tr>';
+        }
+        $("#TotalHoursTable").children("tbody").append(HTML);
+
+        //show no records alert if no records
+        if (new_name_arr.length == 0) {
+            $("#TotalHoursTable").after('<div class="alert alert-warning alert-dismissable">There are no records to display.</div>');
+            $("#TotalHoursTable").hide();
+        }
+
+        $("#CrimsonIframe1", parent.document).show();
+        $("#CrimsonLoading1", parent.document).hide();
+    });
+
+</script>

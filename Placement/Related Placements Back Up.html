@@ -1,0 +1,144 @@
+{% fetchxml Enroments %}  
+<fetch version="1.0" output-format="xml-platform" mapping="logical" distinct="false" returntotalrecordcount="true">
+    <entity name="ccl1000_enrolment">
+        <attribute name="ccl1000_enrolmentid" />
+        <attribute name="ccl1000_name" />
+        <attribute name="createdon" />
+        <attribute name="ccl1000_programmeid" />
+        <order attribute="ccl1000_name" descending="false" />
+        <filter type="and">
+          <condition attribute="ccl1000_studentlearnerid" operator="eq" value="{{user.id}}" />
+          <condition attribute="ccl1000_programmeid" operator="not-null" />
+          <condition attribute="statecode" operator="eq" value="0" />
+        </filter>
+    </entity>
+</fetch>
+{% endfetchxml%} 
+
+{% if Enroments.results.total_record_count > 0 %}
+{% fetchxml PMVacancies %}  
+<fetch version="1.0" output-format="xml-platform" mapping="logical" distinct="false" returntotalrecordcount="true">
+    <entity name="ccl1008_pmvacancy">
+        <attribute name="ccl1008_placementsavailablenew" />
+        <attribute name="ccl1008_name" />
+        <attribute name="ccl1008_pmvacancyid" />
+        <order attribute="ccl1008_name" descending="false" />
+        <filter type="and">
+          <condition attribute="statecode" operator="eq" value="0" />
+          <condition attribute="ccl1008_placementsavailablenew" operator="gt" value="0" />
+          <condition attribute="ccl1008_productid" operator="in">           
+            {% for citem in Enroments.results.entities %}
+            <value>{{citem.ccl1000_programmeid.id}}</value>
+            {% endfor %}
+          </condition>
+        </filter>
+        <link-entity name="ccl1008_pmplacementblock" from="ccl1008_pmplacementblockid" to="ccl1008_placementblockid" alias="a_fb6cd8fecec3e71180cb00155d00328a">
+          <attribute name="ccl1008_startdate" />
+          <filter type="and">
+            <filter type="or">
+              <condition attribute="ccl1008_enddate" operator="next-x-years" value="99" />
+              <condition attribute="ccl1008_enddate" operator="null" />
+            </filter>
+          </filter>
+        </link-entity>
+      </entity>
+</fetch>
+{% endfetchxml%} 
+{% endif %}
+
+<div class="container" style="min-height: 593px;">
+    <div class="page-heading">
+      {% block breadcrumbs %}
+        {% include 'Breadcrumbs' %}
+      {% endblock %}
+    {% block title %}
+      {% include 'Page Header' %}
+    {% endblock %}
+   </div>
+   <div class="row" id="MainContainer" style="display: none;" >
+    {% if Enroments.results.total_record_count > 0 %}
+    <div class="col-md-12">
+     {% block main %}
+      {% include 'Page Copy' %}
+      <div id="PageContent">
+        {% if page.adx_entitylist %}
+           {% include 'entity_list' key:page.adx_entitylist.id %}
+        {% endif %}
+        
+        {% if page.adx_entityform %}
+          {% entityform id: page.adx_entityform.id %}
+        {% endif %}
+        
+        {% if page.adx_webform %}
+          {% webform id: page.adx_webform.id %}
+        {% endif %}
+      </div>  
+     {% endblock %}
+    </div>
+    {% else %}
+    <div class="col-md-12">
+        {% block main %}
+         {% include 'Page Copy' %}
+         <div id="PageContent">
+            <div class="alert alert-warning alert-dismissable">There are no records to display.</div>
+         </div>  
+        {% endblock %}
+    </div>    
+    {% endif %}
+   </div>
+  </div>
+<style type="text/css">
+</style>
+<script type="text/javascript">
+    var viewloaded = false;
+    $(document).ready(function () {
+        var NeedRefresh = true;
+
+        var PMVacanciesArray = new Array();
+        {% for citem in PMVacancies.results.entities %}
+        PMVacanciesArray.push("{{citem.ccl1008_pmvacancyid}}");
+        {% endfor %}
+
+        $(".entity-grid[data-selected-view='75d7a614-1550-e811-80cd-00155d003499']").on("loaded", function () {
+            $("thead").next().children().each(function() {
+                console.log($(this).data("id"));
+                console.log(PMVacanciesArray);
+                if(PMVacanciesArray.indexOf($(this).data("id"))==-1)
+                {
+                    $(this).remove();
+                }
+            });
+            if (NeedRefresh) {
+                //Only Filter the course when entity list first loaded
+                {% if Enroments.results.total_record_count > 0 %}
+                {% for citem in Enroments.results.entities %}
+                setTimeout(function () {
+                //Use fetch in the template to find all the Enroments of student
+                //Then get the course of each Enroment
+                //Use Js to click the Dynamic Lookup Set Filter checkbox
+                console.log("{{citem.ccl1000_programmeid.id}}");
+                if ($("input[value='{" + "{{citem.ccl1000_programmeid.id}}" + "}']").prop("checked") == false) {
+                    $("input[value='{" + "{{citem.ccl1000_programmeid.id}}" + "}']").click();
+                    }
+                }, 200);
+                {% endfor %}
+                {% endif %}
+                setTimeout(function () {
+                //Click the filter submit button to only show the PM Vacancies that have Student's course
+                    $(".btn-entitylist-filter-submit").click();
+                    $("#MainContainer").show();
+                }, 500);
+            }
+            NeedRefresh = false;
+        });
+        console.log("{{Enroments.results.total_record_count}}");
+        console.log("{{PMVacancies.results.total_record_count}}");
+
+        {% if Enroments.results.total_record_count == 0 %}
+        $("#MainContainer").show();
+        {% endif %}
+
+        //hide the Dynamic Lookup Set Filter
+        $("#EntityListe981d9de-1950-e811-8121-70106faae7f1").hide();
+    });
+</script>

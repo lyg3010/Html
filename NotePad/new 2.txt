@@ -1,0 +1,37 @@
+1.Create a new Entity List:Submitted Timesheet List
+2.Create a new web page : Submitted Timesheets 
+Create a new page template: Submitted Timesheets 
+Create a new web template: Submitted Timesheets 
+3.Create a new Entitty Permission:Timesheet
+4.Create a new Entitty Permission:Student Placement
+5.Create new field ccl1008_approvedtimesheets on contact
+6.Create new form Portal - Submitted Timesheets on contact
+7.Create a new CWA ApproveSelectedTimesheets
+8.Create new fields on ccl1008_timesheet:
+ccl1008_signoffon
+ccl1008_signoffcontactid
+ccl1008_expirydate
+ccl1008_reasonforrejection
+9.Create new workflow fire on ccl1008_approvedtimesheets update:
+Approve Selected Timesheets
+10.Add a tab on Portal - Timesheet form
+Reason for Rejection 
+11.Create a new Entity Form
+Timesheet - View
+12.Create a new Entity Form
+Timesheet - Reason for Rejection
+13.Create a workflow:
+Reject Timesheet 
+14.Write JS on entity form Timesheet - View to add the aprove and reject button
+15.Write JS on entity form Timesheet - Reason for Rejection to close the modal when submitted
+16.Add a new status Expired into statuscode
+17.Write a console App to 
+Update Expiry Date of timesheets with no Expiry Date 
+and 
+Check Expiry Date and Set Expiried Timesheet Current Status to Expiried
+
+Testing Note:
+Testing URL:https://uonprod.microsoftcrmportals.com/en-US/submitted-timesheets/?id=CD28ED86-A981-E711-80FE-70106FAAE7F1
+This is the time sheet url of mentor : Irene Kamau
+All the timesheets in this URL have the placement that mentor is Irene Kamau
+parameter ?id=CD28ED86-A981-E711-80FE-70106FAAE7F1 is the contact id of Irene Kamau

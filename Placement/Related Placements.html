@@ -1,0 +1,131 @@
+{% fetchxml Enroments %}  
+<fetch version="1.0" output-format="xml-platform" mapping="logical" distinct="false" returntotalrecordcount="true">
+    <entity name="ccl1000_enrolment">
+        <attribute name="ccl1000_enrolmentid" />
+        <attribute name="ccl1000_name" />
+        <attribute name="createdon" />
+        <attribute name="ccl1000_programmeid" />
+        <order attribute="ccl1000_name" descending="false" />
+        <filter type="and">
+          <condition attribute="ccl1000_studentlearnerid" operator="eq" value="{{user.id}}" />
+          <condition attribute="ccl1000_programmeid" operator="not-null" />
+          <condition attribute="statecode" operator="eq" value="0" />
+        </filter>
+    </entity>
+</fetch>
+{% endfetchxml%} 
+
+{% if Enroments.results.total_record_count > 0 %}
+{% fetchxml PMVacancies %}  
+<fetch version="1.0" output-format="xml-platform" mapping="logical" distinct="false" returntotalrecordcount="true">
+    <entity name="ccl1008_pmvacancy">
+        <attribute name="ccl1008_placementsavailablenew" />
+        <attribute name="ccl1008_name" />
+        <attribute name="ccl1008_pmvacancyid" />
+        <order attribute="ccl1008_name" descending="false" />
+        <filter type="and">
+          <condition attribute="statecode" operator="eq" value="0" />
+          <condition attribute="ccl1008_placementsavailablenew" operator="gt" value="0" />
+          <condition attribute="ccl1008_productid" operator="in">           
+            {% for citem in Enroments.results.entities %}
+            <value>{{citem.ccl1000_programmeid.id}}</value>
+            {% endfor %}
+          </condition>
+        </filter>
+        <link-entity name="ccl1008_pmplacementblock" from="ccl1008_pmplacementblockid" to="ccl1008_placementblockid" alias="a_fb6cd8fecec3e71180cb00155d00328a">
+          <attribute name="ccl1008_startdate" />
+          <filter type="and">
+            <filter type="or">
+              <condition attribute="ccl1008_enddate" operator="next-x-years" value="99" />
+              <condition attribute="ccl1008_enddate" operator="null" />
+            </filter>
+          </filter>
+        </link-entity>
+      </entity>
+</fetch>
+{% endfetchxml%} 
+{% endif %}
+
+<div class="container" style="min-height: 593px;">
+    <div class="page-heading">
+      {% block breadcrumbs %}
+        {% include 'Breadcrumbs' %}
+      {% endblock %}
+    {% block title %}
+      {% include 'Page Header' %}
+    {% endblock %}
+   </div>
+   <div class="row" id="MainContainer" style="display: none;" >
+    {% if Enroments.results.total_record_count > 0 %}
+    {% if PMVacancies.results.total_record_count > 0 %}
+    <div class="col-md-12">
+     {% block main %}
+      {% include 'Page Copy' %}
+      <div id="PageContent">
+        {% if page.adx_entitylist %}
+           {% include 'entity_list' key:page.adx_entitylist.id %}
+        {% endif %}
+        
+        {% if page.adx_entityform %}
+          {% entityform id: page.adx_entityform.id %}
+        {% endif %}
+        
+        {% if page.adx_webform %}
+          {% webform id: page.adx_webform.id %}
+        {% endif %}
+      </div>  
+     {% endblock %}
+    </div>
+    {% else %}
+    <div class="col-md-12">
+        {% block main %}
+         {% include 'Page Copy' %}
+         <div id="PageContent">
+            <div class="alert alert-warning alert-dismissable">There are no records to display.</div>
+         </div>  
+        {% endblock %}
+    </div>    
+    {% endif %}
+    {% else %}
+    <div class="col-md-12">
+        {% block main %}
+         {% include 'Page Copy' %}
+         <div id="PageContent">
+            <div class="alert alert-warning alert-dismissable">There are no records to display.</div>
+         </div>  
+        {% endblock %}
+    </div>    
+    {% endif %}
+   </div>
+  </div>
+<style type="text/css">
+</style>
+<script type="text/javascript">
+    var viewloaded = false;
+    $(document).ready(function () {
+        var PMVacanciesArray = new Array();
+        //Retrive all the student's course on enrolment first
+        //Then use the course as the PMVacancy fetch condition
+        //Get the course related PMVacancy and then add them to a array
+        {% for citem in PMVacancies.results.entities %}
+        PMVacanciesArray.push("{{citem.ccl1008_pmvacancyid}}");
+        {% endfor %}
+
+        $(".entity-grid[data-selected-view='75d7a614-1550-e811-80cd-00155d003499']").on("loaded", function () {
+            $("thead").next().children().each(function() {
+              //if current PMVacancy is not course related we remove it from table
+                if(PMVacanciesArray.indexOf($(this).data("id"))==-1)
+                {
+                    $(this).remove();
+                }
+            });
+            $("#MainContainer").show();
+        });
+
+        {% if Enroments.results.total_record_count == 0 %}
+        $("#MainContainer").show();
+        {% elsif PMVacancies.results.total_record_count == 0 %}
+        $("#MainContainer").show();
+        {% endif %}
+    });
+</script>

@@ -1,0 +1,25 @@
+<div class="container" style="min-height: 593px;">
+  <div class="page-heading">
+    {% block breadcrumbs %}
+      {% include 'Breadcrumbs' %}
+    {% endblock %}
+  {% block title %}
+    {% include 'Page Header' %}
+  {% endblock %}
+ </div>
+ <div class="row" id="MainContainer" style="display: none;" >
+  <div class="col-md-12">
+   {% block main %}
+    {% include 'Page Copy' %}
+    <div id="PageContent">
+      {% if user.roles contains 'Administrators' %}
+      <p>Please replace this with Admin Contact Placements Team entity form.</p>
+        {% entityform id: "4B5A6AE9-9347-E811-8120-70106FAAD2F1" %}
+      {% else %}
+        {% entityform id: "4B5A6AE9-9347-E811-8120-70106FAAD2F1" %}
+      {% endif %}
+    </div>  
+   {% endblock %}
+  </div>
+ </div>
+</div>

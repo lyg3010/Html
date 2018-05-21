@@ -1,0 +1,108 @@
+{% assign primary_nav = weblinks["Primary Navigation"] %}
+{% for navlink in primary_nav.weblinks %}
+{% if navlink.name == "Quick Links" %}
+{% assign quick_links = navlink %}
+{% endif %}
+{% endfor %}
+
+{% assign categoryid = request.params['category'] | xml_escape %}
+{% if categoryid %} 
+{% assign adx_weblinkname = entities.adx_weblink[categoryid].adx_name %}
+{% endif %}
+<div class="container" style="min-height: 593px;">
+    <div class="page-heading">
+        <!-- {% block breadcrumbs %} 
+        {% include 'Breadcrumbs' %} 
+        {% endblock %}  -->
+        {% if categoryid %} 
+        <div class="page-header">
+            <h1>{{adx_weblinkname}}</h1>
+        </div>
+        {% else %}
+        {% block title %} 
+        {% include 'Page Header' %} 
+        {% endblock %}
+        {% endif %}
+
+    </div>
+    <div class="row">
+        <div class="col-md-8">
+            <!-- {% include 'Page Copy' %} -->
+            <!-- if there is no category parameter show all the categories with tab-pane -->
+            {% unless categoryid %} 
+            <ul class="nav nav-tabs">
+                {% if quick_links %} 
+                {% for sublink in quick_links.weblinks %} 
+                {% if forloop.first %}
+                <li class="active">
+                {% else %}
+                <li>
+                {% endif %}
+                    <a href="#{{sublink.name| remove: ' '}}" data-toggle="tab" id="{{sublink.name| remove: ' '}}tab">{{sublink.name}}</a>
+                </li>
+                {% endfor %} 
+                {% endif %}
+            </ul>            
+            <div class="tab-content">
+                {% if quick_links %} 
+                {% for sublink in quick_links.weblinks %} 
+                {% if forloop.first %}
+                <div class="tab-pane active" id="{{sublink.name| remove: ' '}}">
+                {% else %}
+                <div class="tab-pane" id="{{sublink.name| remove: ' '}}">
+                {% endif %} 
+                <br>
+                    {% assign subsublinks = sublink.weblinks %} 
+                    {% for subsublink in subsublinks %}
+                        <div class="sublink">
+                            <a href="{{subsublink.url}}">{{subsublink.name}}</a>
+                        </div>
+                        <div class="sublinkdescription">
+                            <p>{{subsublink.description}}</p>
+                        </div>                        
+                    {% endfor %}
+                </div>
+                {% endfor %} 
+                {% endif %}
+                </div>
+            </div>
+            <!-- if there is category parameter show the current category only -->
+            {% else %}
+            <div class="tab-content">
+                    {% if quick_links %} 
+                    {% for sublink in quick_links.weblinks %} 
+                    {% if sublink.id == categoryid %}
+                    <div id="{{sublink.name| remove: ' '}}">
+                    <br>
+                        {% assign subsublinks = sublink.weblinks %} 
+                        {% for subsublink in subsublinks %}
+                            <div class="sublink">
+                                <a href="{{subsublink.url}}">{{subsublink.name}}</a>
+                            </div>
+                            <div class="sublinkdescription">
+                                <p>{{subsublink.description}}</p>
+                            </div>                        
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    {% endfor %} 
+                    {% endif %}
+                    </div>
+                </div>
+            {% endunless %}
+        </div>
+    </div>
+
+    <style>
+    .sublink {
+        margin: 10px 20px 20px 20px;
+        font-size: 24px;
+    }
+    .sublinkdescription {
+        margin: 20px;
+        text-indent: 29px;
+    }
+    </style>
+    <script type="text/javascript">
+
+    </script>

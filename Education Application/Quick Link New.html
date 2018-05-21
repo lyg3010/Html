@@ -1,0 +1,160 @@
+{% assign primary_nav = weblinks["Primary Navigation"] %}
+{% for navlink in primary_nav.weblinks %}
+{% if navlink.name == "Quick Links" %}
+{% assign quick_links = navlink %}
+{% endif %}
+{% endfor %}
+
+{% assign categoryid = request.params['category'] | xml_escape %}
+{% if categoryid %} 
+{% assign adx_weblinkname = entities.adx_weblink[categoryid].adx_name %}
+{% endif %}
+<div class="container" style="min-height: 593px;">
+    <div class="page-heading">
+        <!-- {% block breadcrumbs %} 
+        {% include 'Breadcrumbs' %} 
+        {% endblock %}  -->
+        {% if categoryid %} 
+        <div class="page-header">
+            <h1>{{adx_weblinkname}}</h1>
+        </div>
+        {% else %}
+        {% block title %} 
+        {% include 'Page Header' %} 
+        {% endblock %}
+        {% endif %}
+
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <!-- {% include 'Page Copy' %} -->
+            <!-- if there is no category parameter show all the categories with tab-pane -->
+            {% unless categoryid %} 
+            <div class="tab-content">
+            {% if quick_links %} 
+            {% for sublink in quick_links.weblinks %} 
+                <div id="{{sublink.name| remove: ' '}}div" class="Group" style="display: block;">
+                    <div class="Title">{{sublink.name}}</div>
+                    <br>               
+                    {% assign subsublinks = sublink.weblinks %} 
+                    {% for subsublink in subsublinks %}
+                    <div class="SubLinkDiv clearfix" style="margin-bottom: 0px;" onclick="window.open('{{subsublink.url}}','_blank');">
+                            <div class="sublinkdiv">
+                                <div class="sublink">
+                                    <p>{{subsublink.name}}</p>
+                                    <!-- <a href="{{subsublink.url}}">{{subsublink.name}}</a> -->
+                                </div>
+                                <div class="sublinkdescription">
+                                        {{subsublink.description}}
+                                    <!-- <p class="description">{{subsublink.description}}</p> -->
+                                </div>
+                            </div>
+                    </div>  
+                    {% endfor %}
+                </div>
+          
+            {% endfor %} 
+       
+            {% endif %}
+        </div>
+    </div>
+            <!-- if there is category parameter show the current category only -->
+            {% else %}
+            <div class="tab-content">
+                    {% if quick_links %} 
+                    {% for sublink in quick_links.weblinks %} 
+                    {% if sublink.id == categoryid %}
+                    <div id="{{sublink.name| remove: ' '}}div" class="Group" style="display: block;">
+                            <br>               
+                            {% assign subsublinks = sublink.weblinks %} 
+                            {% for subsublink in subsublinks %}
+                            <div class="SubLinkDiv clearfix" style="margin-bottom: 0px;" onclick="window.open('{{subsublink.url}}','_blank');">
+                                    <div class="sublinkdiv">
+                                        <div class="sublink">
+                                            <p>{{subsublink.name}}</p>
+                                            <!-- <a href="{{subsublink.url}}">{{subsublink.name}}</a> -->
+                                        </div>
+                                        <div class="sublinkdescription">
+                                            <p class="description">{{subsublink.description}}</p>
+                                        </div>
+                                    </div>
+                            </div>  
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    {% endfor %} 
+                    {% endif %}
+                    </div>
+                </div>
+            {% endunless %}
+        </div>
+    </div>
+
+    <style>
+    .Group {
+        margin-bottom: 20px;
+    }
+    .Title {
+    font-size:24px;
+    padding-bottom: 10px;
+    }
+    .sublinkdiv {
+        background-color: #edf2fa;
+        padding: 10px 0 10px 10px;
+        border-bottom: 1px solid #dddfe2;
+    }
+    .sublinkdiv:hover {
+        background: #f1f1f1;
+        text-decoration: none;
+        cursor: pointer;
+    }
+    /* .sublink :before{ 
+    font-family:'FontAwesome'; 
+    content:"\f058"; 
+    color:#86b26e; 
+    font-size:20px; 
+    margin-right:5px; 
+    margin-left:-8px 
+    }  */
+    .sublink {
+        font-size: 16px;
+    }
+    .sublink p{
+        margin: 0 0 5px;
+    }
+    .sublinkdescription {
+        /* text-indent: 29px; */
+        color: #90949c;
+    }
+    .sublinkdescription p{
+        margin: 0 0 5px;
+    }
+
+
+
+    
+    /* .sublinkdescription {
+        width: 90%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+        } */
+    /* .sublinkdescription {
+        position:relative;
+        line-height:1.4em;
+        height:2.8em;
+        overflow:hidden;
+        }
+    .sublinkdescription::after {
+    content:"...";
+    font-weight:bold;
+    position:absolute;
+    bottom:0;
+    right:0;
+    padding:0 20px 1px 45px;
+    background:url(http://css88.b0.upaiyun.com/css88/2014/09/ellipsis_bg.png) repeat-y;
+    } */
+    </style>
+    <script type="text/javascript">
+
+    </script>

@@ -1,0 +1,86 @@
+3/4/18 Eric
+
+1. Created forms and view as requested.
+
+ 
+
+07/05/2018 Eagle.Lu Notes:
+
+1.Add filter to the view on Entity ccl1008_timesheet:
+Portal - Last 10 Timesheets.
+
+2.Create new tab on form Portal - Timesheet on Entity ccl1008_timesheet:
+tab_TimesheetCreate
+tab_TimesheetView
+
+3.Edit the form Portal - Timesheet Line on Entity ccl1008_timesheetline.
+
+4.Create 
+Web Page
+Last 10 Timesheets 
+Page Template
+Last 10 Timesheets 
+Web Template
+Last 10 Timesheets
+
+5.Create Entity List:
+Timesheet - Last 10 Timesheets
+
+6.Create Entity Form:
+Timesheet - Student View
+Timesheet - Student Create
+Timesheet - Student Edit
+
+7.Create Entity Permission:
+Timesheet - Student
+Paremeters
+
+8.Write JS on Entity Form Timesheet - Student Create
+to set the Placement to the latest In Progress Student Placements and set it to read only
+
+9.Write JS on Entity Form Timesheet - Student Update
+to set Placement to read only
+to Add a submit button
+
+10.Create new Entity Form:
+Timesheet Line - Student Create
+
+11.Create Entity Permission:
+Timesheet Line - Student
+
+12.Create Entity Form:
+Timesheet - Student Submit
+
+13.Write JS on Entity Form Timesheet - Student Submit
+to auto submit and set current status to submitted
+
+14.Create 
+web page 
+Total Hrs Per Placement
+Page Template
+Total Hrs Per Placement
+Web Template
+Total Hrs Per Placement
+
+15.Create Workflow:
+Send Timesheet Email
+16.Create a console App to send email to mentors(This app need to run every week)
+Crimson.Crm.Placements.SendTimesheetEmail
+
+$/XrmToolkit/Verticals/Placements/Main/Crimson.Crm.Placements.SendTimesheetEmail
+
+ 
+
+Testing note:
+
+Testing Url:
+
+https://uonprod.microsoftcrmportals.com/en-US/placement/last-10-timesheets/
+
+Please login with student web role
+
+the list show the latest timesheets that student is current user
+
+the current placement used in create form is the newest user's Student Placement which's placement status is In Progress Status on Parameter
+
+The app find every mentor on the placements on the submitted timesheets and run the workflow on them to send the email

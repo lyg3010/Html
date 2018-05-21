@@ -1,0 +1,54 @@
+1.Create a new view on Entity ccl1008_pmplacement:
+Portal - Assigned Placements
+2.Create a new tab on form Portal - Student Placement Details on Entity ccl1008_pmplacement:
+Assigned Placement Details
+3.Create a new Quick view form on Entity ccl1008_pmvacancy:
+Portal -  PM Vacancy Quick View
+Create a new Quick view form on Entity ccl1008_wblmodules:
+Portal -  Link Tutor WBL Type Quick View
+4.Create a new Entity List
+Student Placement - Assigned Placements
+5.Create a new Entity Form
+Student Placement - Assigned Placement Detail
+6.Create a web page:
+Assigned Placements
+7.Create Entity Permission:
+Placement Skill
+
+8.Create a new View on Entity ccl1008_pmvacancy:
+Portal - Assigned Placements
+9.Create a new form on Entity ccl1008_pmvacancy:
+Portal - Course Related Placements
+10.Create a new Entity List
+Placement Vacancy - Course Related Placements
+11.Create 
+Web Page 
+Related Placements
+Page Template
+Related Placements
+Web Template 
+Related Placements
+12.Create new Eneiey Permission:
+Placement Vacancy - Student
+Placement Vacancy - Student - Note
+Enroment
+13.Create new Entity Form:
+Placement Vacancy - Related Placement Detail
+14.Write JS on Entity Forms to add PDF button:
+Student Placement - Assigned Placement Detail
+Placement Vacancy - Related Placement Detail
+15.Create Entity Form
+Enquiry - PM Vacancy
+16.Write Js on Entity Form Enquiry - PM Vacancy
+to Fill the enquiry detail
+17.Create a workflow 
+Submit PMVacancy Enquiry to Placements Team
+
+Testing URL:
+https://uonprod.microsoftcrmportals.com/en-US/placement/assigned-placements/
+https://uonprod.microsoftcrmportals.com/en-US/placement/related-placements/
+
+Testing note:
+Only the PM Vacancy Record that has PDF will show the download button
+related placements Page Find all login user's Enrolement and use the course on them to filter the PM Vacancy
+

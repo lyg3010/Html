@@ -1,0 +1,704 @@
+<script type="text/javascript" src="/jquery.min.js"></script>
+{% if user.id %}
+  <style>
+      .notificationul {
+          display: block;
+          background: white;
+          list-style: none;
+          padding: 5px 5px;
+          border-bottom:1px solid #dddfe2;
+          overflow:hidden;
+      }
+  
+      .notificationul li {
+          float: right;
+          margin: 2px 0;
+          color: #edf2fa;
+      }
+  
+      .notificationul li div div a {
+          color: black;
+          text-decoration: none;
+      }
+  
+      .notificationul li div div span {
+          color: #90949c;
+          text-decoration: none;
+          padding: 5px 0px;
+      }
+  
+      .notificationul li div div img {
+          width: 32px;
+          height: 32px;
+          margin-top: 5px;
+      }
+  
+      .notificationul:hover {
+          background: #f1f1f1;
+          text-decoration: none;
+          cursor: pointer;
+      }
+      
+      .NewNotification {
+          background-color: #edf2fa;
+      }
+      
+      /* A CIRCLE LIKE BUTTON IN THE TOP MENU. */
+      .noti_Button {
+          /*width: 22px;
+          height: 22px;*/
+          line-height: 20px;
+          border-radius: 50%;
+          -moz-border-radius: 50%;
+          -webkit-border-radius: 50%;
+          margin: -3px 10px 0 10px;
+          cursor: pointer;
+      }
+  
+      /* THE POPULAR RED NOTIFICATIONS COUNTER. */
+      .noti_Counter {
+          display: block;
+          position: absolute;
+          background: red;
+          color: white;
+          padding: 1px 6px;
+          margin: 0 0 0 20px;
+          border-radius: 25px;
+          -moz-border-radius: 25px;
+          -webkit-border-radius: 25px;
+          z-index: 1;
+      }
+  
+      /* THE NOTIFICAIONS WINDOW. THIS REMAINS HIDDEN WHEN THE PAGE LOADS. */
+      .noti_panel {
+          display: none;
+          width: 350px;
+          position: fixed;
+          background: #FFF;
+          border: solid 1px rgba(100, 100, 100, .20);
+          -webkit-box-shadow: 0 3px 8px rgba(0, 0, 0, .20);
+          z-index: 1;
+      }
+      
+      .noti_content {
+          max-height: 500px;
+          overflow-y: auto;
+          overflow-x: hidden;
+      }
+  
+      .NTitle {
+          display: block;
+          color: #333;
+          background: #FFF;
+          font-weight: bold;
+          font-size: 13px;
+          padding: 8px;
+          margin: 0;
+          border-bottom: solid 1px rgba(100, 100, 100, .30);
+          text-align:center;
+      }
+  
+      .seeAll {
+          background: #F6F7F8;
+          padding: 8px;
+          font-size: 12px;
+          font-weight: bold;
+          /*border-top: solid 1px rgba(100, 100, 100, .30);*/
+          text-align: center;
+          cursor:pointer;
+      }
+  
+      .seeAll a {
+          color: #3b5998;
+      }
+  
+      .seeAll a:hover {
+          background: #F6F7F8;
+          color: #3b5998;
+          text-decoration: underline;
+      }
+      
+      .notificationimg{
+        width: 20px;
+        height: 20px;
+        margin-top: 22px;
+        border-radius: 50%;
+        color:white;
+      }
+      
+      @media (max-width: 767px) {
+        .notificationimg{
+          margin-top: 0px;
+          margin-left: 5px;
+        }
+        .noti_Counter{
+          margin:-10px 0 0 30px;
+        }
+        .noti_panel {
+          width: 300px;
+          top: 0px;
+        }
+        .noti_content {
+          max-height:250px;
+        }
+        .noti_Button {
+            padding-top:15px;
+            padding-bottom:15px;
+        }
+      }
+  </style>
+  <script type="text/javascript">
+      var pagesize = 1;
+      var pagecount = 10;
+      var unreadcount = 0;
+      var NotificationsResult = null;
+      var incompleted = 0;
+      var ActionRequestsResult = null;
+      var actionpagesize = 1;
+
+      $(function () {
+          InitializeNotifications();
+          InitializeActionRequests();
+
+          // HIDE NOTIFICATIONS WHEN CLICKED ANYWHERE ON THE PAGE.
+          $(document).click(function () {
+              $('.noti_content').scrollTop(0);
+              $('.noti_panel').hide();
+              $('.noti_content').empty();
+
+              $("body").css('overflow', 'auto');
+          });
+      });
+
+      function InitializeNotifications() {
+          NotificationsResult = GetNotifications();
+          if (unreadcount > 0) {
+              $('#noti_Counter').show();
+              $('#noti_Counter')
+                .css({ opacity: 0 })
+                .text(unreadcount)
+                .css({ top: '-20px' })
+                .animate({ top: '4px', opacity: 1 }, 500);
+          }
+          else {
+              $('#noti_Counter').hide();
+          }
+          $('#noti_Button').click(function () {
+              $('.noti_content').scrollTop(0);
+              $('.noti_panel').hide();
+              $('.noti_content').empty();
+
+              $('#notifications').css('top', $("div.navbar-static-top").height() + 'px');
+              var leftpotion = $('#noti_Button').offset().left;
+              var totalwidth = $(window).width();
+              if (totalwidth - leftpotion >= 360)
+                  $('#notifications').css('left', leftpotion + 'px');
+              else
+                  $('#notifications').css('left', totalwidth - 360 + 'px');
+              //Show first page data
+              pagesize = 1;
+              SetNotifications(NotificationsResult, 0, pagecount);
+              // TOGGLE (SHOW OR HIDE) NOTIFICATION WINDOW.
+              $('#notifications').fadeToggle('fast', 'linear', function () {
+                  if ($('#notifications').is(':hidden')) {
+                      $("body").css('overflow', 'auto');
+                      $('#NotificationContent').empty();
+                  }
+                  else {
+                      $("body").css('overflow', 'hidden');
+                  }
+              });
+
+              return false;
+          });
+
+          $('#notifications').click(function () {
+              return false;       // DO NOTHING WHEN CONTAINER IS CLICKED.
+          });
+
+          $("#NotificationContent").scroll(function () {
+              var nScrollHight = $(this)[0].scrollHeight;
+              var nScrollTop = $(this)[0].scrollTop;
+              var nDivHight = $("#NotificationContent").height();
+              if (nScrollTop + nDivHight >= nScrollHight)
+                  GetMoreNotification();
+          });
+
+          function GetNotifications() {
+              var httpReq = new XMLHttpRequest();
+              httpReq.open("GET", "/portal-notification-json/", false);
+              httpReq.setRequestHeader("Accept", "application/json");
+              httpReq.setRequestHeader("Content-Type", "application/json; charset=utf-8");
+              httpReq.send(null);
+              if (httpReq.status == 200) {
+                  NotificationsResult = JSON.parse(httpReq.responseText);
+
+                  for (var i = 0; i < NotificationsResult.totalcount; i++) {
+                      if (NotificationsResult.results[i]["statuscode"] == "1") {
+                          unreadcount++;
+                      }
+                  }
+              }
+              return NotificationsResult;
+          }
+
+          function SetNotifications(Result, startindex, maxsize) {
+              var emptyhtml = "<div class=\"notes-empty message\"><div class=\"alert alert-block alert-warning\" style=\"margin-bottom:0px;\">There are no records to display.</div></div>";
+              if (Result.totalcount > 0) {
+                  for (var i = startindex; i < maxsize; i++) {
+                      if (i >= Result.totalcount) {
+                          break;
+                      }
+                      var appendhtml = "";
+                      if (Result.results[i]["statuscode"] == "1") {
+                          appendhtml += "<ul class=\"notificationul NewNotification\"";
+                      }
+                      else {
+                          appendhtml += "<ul class=\"notificationul\"";
+                      }
+                      appendhtml += " onclick=\"DirectNotification('" + Result.results[i]["activityid"] + "')\"><li><div class=\"col-xs-12 col-lg-12 col-sm-12 col-md-12 row\"><div class=\"col-xs-2 col-lg-2 col-sm-2 col-md-2\"><span class=\"glyphicon glyphicon-bell\"></span></div><div class=\"col-xs-10 col-lg-10 col-sm-10 col-md-10\"><a>" + Result.results[i]["subject"] + ": <b>" + Result.results[i]["regarding"] + "</b></a></div><div class=\"col-xs-2 col-lg-2 col-sm-2 col-md-2\"></div><div class=\"col-xs-10 col-lg-10 col-sm-10 col-md-10\"><span>";
+
+                      var createdon = moment(Result.results[i]["createdon"], "MMMM DD, YYYY h:m");
+                      if (createdon.format("MMMM DD, YYYY") == moment().format("MMMM DD, YYYY")) {
+                          appendhtml += createdon.fromNow();
+                      }
+                      else if (createdon.format("MMMM DD, YYYY") == moment().subtract(1, "days").format("MMMM DD, YYYY")) {
+                          appendhtml += "Yesterday " + createdon.format("h:m A");
+                      }
+                      else {
+                          appendhtml += Result.results[i]["createddate"];
+                      }
+                      appendhtml += "</span></div></div></li></ul>";
+                      $("#NotificationContent").append(appendhtml);
+                  }
+              }
+              else {
+                  $("#NotificationContent").append(emptyhtml);
+              }
+          }
+      }
+
+      function GetMoreNotification() {
+          pagesize = pagesize + 1;
+          //Get More
+          SetNotifications(NotificationsResult, (pagesize - 1) * pagecount, pagesize * pagecount);
+      }
+
+      function DirectNotification(id) {
+          top.window.location.href = "/portal-notification/?id=" + id;
+      }
+
+      function SeeAllNotifications() {
+          top.window.location.href = "/your-notifications";
+      }
+
+      function InitializeActionRequests() {
+          ActionRequestsResult = GetActionRequests();
+          if (incompleted > 0) {
+              $('#act_Counter').show();
+              $('#act_Counter')
+                .css({ opacity: 0 })
+                .text(incompleted)
+                .css({ top: '-20px' })
+                .animate({ top: '4px', opacity: 1 }, 500);
+          }
+          else {
+              $('#act_Counter').hide();
+          }
+          $('#act_Button').click(function () {
+              $('.noti_content').scrollTop(0);
+              $('.noti_panel').hide();
+              $('.noti_content').empty();
+
+              $('#div_actionrequest').css('top', $("div.navbar-static-top").height() + 'px');
+              var leftpotion = $('#act_Button').offset().left;
+              var totalwidth = $(window).width();
+              if (totalwidth - leftpotion >= 360)
+                  $('#div_actionrequest').css('left', leftpotion + 'px');
+              else
+                  $('#div_actionrequest').css('left', totalwidth - 360 + 'px');
+              //Show first page data
+              actionpagesize = 1;
+              SetActionRequests(ActionRequestsResult, 0, pagecount);
+              // TOGGLE (SHOW OR HIDE) NOTIFICATION WINDOW.
+              $('#div_actionrequest').fadeToggle('fast', 'linear', function () {
+                  if ($('#div_actionrequest').is(':hidden')) {
+                      $("body").css('overflow', 'auto');
+                      $('#div_actionrequestcontent').empty();
+                  }
+                  else {
+                      $("body").css('overflow', 'hidden');
+                  }
+              });
+
+              return false;
+          });
+
+          $('#div_actionrequest').click(function () {
+              return false;       // DO NOTHING WHEN CONTAINER IS CLICKED.
+          });
+
+          $("#div_actionrequestcontent").scroll(function () {
+              var nScrollHight = $(this)[0].scrollHeight;
+              var nScrollTop = $(this)[0].scrollTop;
+              var nDivHight = $("#div_actionrequestcontent").height();
+              if (nScrollTop + nDivHight >= nScrollHight)
+                  GetMoreActionRequests();
+          });
+      }
+
+      function GetActionRequests() {
+          var httpReq = new XMLHttpRequest();
+          httpReq.open("GET", "/action-request-json/", false);
+          httpReq.setRequestHeader("Accept", "application/json");
+          httpReq.setRequestHeader("Content-Type", "application/json; charset=utf-8");
+          httpReq.send(null);
+          if (httpReq.status == 200) {
+              ActionRequestsResult = JSON.parse(httpReq.responseText);
+
+              for (var i = 0; i < ActionRequestsResult.totalcount; i++) {
+                  if (ActionRequestsResult.results[i]["statuscode"] == "0") {//Open
+                      incompleted++;
+                  }
+              }
+          }
+          return ActionRequestsResult;
+      }
+
+      function SetActionRequests(Result, startindex, maxsize) {
+          var emptyhtml = "<div class=\"notes-empty message\"><div class=\"alert alert-block alert-warning\" style=\"margin-bottom:0px;\">There are no records to display.</div></div>";
+          if (Result.totalcount > 0) {
+              for (var i = startindex; i < maxsize; i++) {
+                  if (i >= Result.totalcount) {
+                      break;
+                  }
+                  var appendhtml = "";
+                  if (Result.results[i]["statuscode"] == "0") {//Open
+                      appendhtml += "<ul class=\"notificationul NewNotification\"";
+                  }
+                  else {
+                      appendhtml += "<ul class=\"notificationul\"";
+                  }
+                  appendhtml += " onclick=\"DirectActionRequest('" + Result.results[i]["activityid"] + "')\"><li><div class=\"col-xs-12 col-lg-12 col-sm-12 col-md-12 row\"><div class=\"col-xs-2 col-lg-2 col-sm-2 col-md-2\"><span class=\"glyphicon glyphicon-tasks\"></span></div><div class=\"col-xs-10 col-lg-10 col-sm-10 col-md-10\"><a>" + Result.results[i]["subject"] + ": <b>" + Result.results[i]["regarding"] + "</b></a></div><div class=\"col-xs-2 col-lg-2 col-sm-2 col-md-2\"></div><div class=\"col-xs-10 col-lg-10 col-sm-10 col-md-10\"><span>";
+
+                  var createdon = moment(Result.results[i]["createdon"], "MMMM DD, YYYY h:m");
+                  if (createdon.format("MMMM DD, YYYY") == moment().format("MMMM DD, YYYY")) {
+                      appendhtml += createdon.fromNow();
+                  }
+                  else if (createdon.format("MMMM DD, YYYY") == moment().subtract(1, "days").format("MMMM DD, YYYY")) {
+                      appendhtml += "Yesterday " + createdon.format("h:m A");
+                  }
+                  else {
+                      appendhtml += Result.results[i]["createddate"];
+                  }
+                  appendhtml += "</span></div></div></li></ul>";
+                  $("#div_actionrequestcontent").append(appendhtml);
+              }
+          }
+          else {
+              $("#div_actionrequestcontent").append(emptyhtml);
+          }
+      }
+
+      function GetMoreActionRequests() {
+          actionpagesize = actionpagesize + 1;
+          //Get More
+          SetActionRequests(ActionRequestsResult, (actionpagesize - 1) * pagecount, actionpagesize * pagecount);
+      }
+
+      function DirectActionRequest(id) {
+          top.window.location.href = "/action-request/?id=" + id;
+      }
+
+      function SeeAllActionRequests() {
+          top.window.location.href = "/your-action-requests";
+      }
+  </script>
+<script type="text/javascript">
+
+</script>
+{% endif %}
+
+{% assign homeurl = website.adx_partialurl %}
+
+<div class="navbar navbar-inverse navbar-static-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <div class="visible-xs-block">
+        {% editable snippets 'Mobile Header' type: 'html' %}
+      </div>
+      <div class="visible-sm-block visible-md-block visible-lg-block navbar-brand">
+        {% editable snippets 'Navbar Left' type: 'html' %}
+      </div>
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" onclick="setHeight();">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      {% assign primary_nav = weblinks["Primary Navigation"] %}
+      {% if primary_nav %}
+        <div class="navbar-right menu-bar {% if primary_nav.editable %}xrm-entity xrm-editable-adx_weblinkset{% endif %}" data-weblinks-maxdepth="2">
+          <ul class="nav navbar-nav weblinks">
+            {% for link in primary_nav.weblinks %}
+              {% unless forloop.first %}
+                <li class="divider-vertical"></li>
+              {% endunless %}
+              {% if link.display_page_child_links %}
+                {% if link.url != null %}
+                  {% assign sublinks = sitemap[link.url].children %}
+                {% endif %}
+              {% else %}
+                {% assign sublinks = link.weblinks %}
+              {% endif %}
+
+              <li class="weblink {% if sublinks.size > 0 %} dropdown{% endif %}">
+                <a {% if sublinks.size > 0 -%}
+                    href="#" class="dropdown-toggle" data-toggle="dropdown"
+                    {%- else -%}
+                    href="{{ link.url | escape }}"
+                    {%- endif -%}
+                    {%- if link.nofollow %} rel="nofollow"{% endif -%}
+                    {%- if link.tooltip %} title="{{ link.tooltip | escape }}"{% endif %}>
+                    {%- if link.image -%}
+                      {%- if link.image.url startswith '.' -%}
+                        <span class="{{ link.image.url | split:'.' | join }}" aria-hidden="true"></span>
+                      {%- else -%}
+                        <img src="{{ link.image.url | escape }}"
+                             alt="{{ link.image.alternate_text | default:link.tooltip | escape }}"
+                             {% if link.image.width %}width="{{ link.image.width | escape }}" {% endif %}
+                             {% if link.image.height %}height="{{ link.image.height | escape }}" {% endif %} />
+                      {%- endif -%}
+                    {%- endif -%}
+                    {%- unless link.display_image_only -%}
+                      {{ link.name | escape }}
+                    {%- endunless -%}
+                    {%- if sublinks.size > 0 -%}
+                      <span class="caret"></span>
+                    {%- endif -%}
+                </a>
+
+                {% if sublinks.size > 0 %}
+                  <ul class="dropdown-menu" role="menu">
+                    {% if link.url %}
+                      <li>
+                        <a href="{{ link.url }}"
+                           {% if link.nofollow %}rel="nofollow" {% endif %}
+                           {% if link.tooltip %}title="{{ link.tooltip }}" {% endif %}>{{ link.name }}</a>
+                      </li>
+                      <li class="divider"></li>
+                    {% endif %}
+                    {% for sublink in sublinks %}
+                      <li>
+                        <a href="{{ sublink.url }}?category={{ sublink.id }}"
+                           {% if sublink.nofollow %}rel="nofollow" {% endif %}
+                           {% if sublink.tooltip %}title="{{ sublink.tooltip }}" {% endif %}>
+                           {{ sublink.name | default:sublink.title }}
+                        </a>
+                      </li>
+                    {% endfor %}
+                  </ul>
+                {% endif %}
+              </li>
+
+            {% endfor %}
+            
+            <!-- <li class="divider-vertical"></li>
+            {% assign quick_links = weblinks["Quick Links"] %}
+                {% if quick_links %}
+                        {% for link in quick_links.weblinks %}
+                        {% unless forloop.first %}
+                            <li class="divider-vertical"></li>
+                        {% endunless %}
+                        {% if link.display_page_child_links %}
+                            {% if link.url != null %}
+                            {% assign sublinks = sitemap[link.url].children %}
+                            {% endif %}
+                        {% else %}
+                            {% assign sublinks = link.weblinks %}
+                        {% endif %}
+
+                        <li class="weblink {% if sublinks.size > 0 %} dropdown{% endif %}">
+                            <a {% if sublinks.size > 0 -%}
+                                href="#" class="dropdown-toggle" data-toggle="dropdown"
+                                {%- else -%}
+                                href="{{ link.url | escape }}"
+                                {%- endif -%}
+                                {%- if link.nofollow %} rel="nofollow"{% endif -%}
+                                {%- if link.tooltip %} title="{{ link.tooltip | escape }}"{% endif %}>
+                                {%- if link.image -%}
+                                {%- if link.image.url startswith '.' -%}
+                                    <span class="{{ link.image.url | split:'.' | join }}" aria-hidden="true"></span>
+                                {%- else -%}
+                                    <img src="{{ link.image.url | escape }}"
+                                        alt="{{ link.image.alternate_text | default:link.tooltip | escape }}"
+                                        {% if link.image.width %}width="{{ link.image.width | escape }}" {% endif %}
+                                        {% if link.image.height %}height="{{ link.image.height | escape }}" {% endif %} />
+                                {%- endif -%}
+                                {%- endif -%}
+                                {%- unless link.display_image_only -%}
+                                {{ link.name | escape }}
+                                {%- endunless -%}
+                                {%- if sublinks.size > 0 -%}
+                                <span class="caret"></span>
+                                {%- endif -%}
+                            </a>
+
+                            {% if sublinks.size > 0 %}
+                            <ul class="dropdown-menu" role="menu">
+                                {% if link.url %}
+                                <li>
+                                    <a href="{{ link.url }}"
+                                    {% if link.nofollow %}rel="nofollow" {% endif %}
+                                    {% if link.tooltip %}title="{{ link.tooltip }}" {% endif %}>{{ link.name }}</a>
+                                </li>
+                                <li class="divider"></li>
+                                {% endif %}
+                                {% for sublink in sublinks %}
+                                <li>
+                                    <a href="{{ sublink.url }}?category={{ sublink.id }}"
+                                    {% if sublink.nofollow %}rel="nofollow" {% endif %}
+                                    {% if sublink.tooltip %}title="{{ sublink.tooltip }}" {% endif %}>
+                                    {{ sublink.name | default:sublink.title }}
+                                    </a>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                            {% endif %}
+                        </li>
+                        {% endfor %}                             
+                {% endif %} -->
+
+            {% assign search_enabled = settings['Search/Enabled'] | boolean | default:true %}
+            {% if search_enabled %}
+            <li class="divider-vertical"></li>
+            <li class="dropdown">
+              <a class="navbar-icon" href="#" data-toggle="dropdown"
+                role="button" aria-haspopup="true" aria-expanded="false"
+                aria-label="{{ snippets["Header/Search/ToolTip"] | default:resx["Search_DefaultText"] | escape }}" >
+                <span class="glyphicon glyphicon-search"></a>
+              </a>
+              <ul class="dropdown-menu dropdown-search">
+                <li>
+                  {% include 'Search' %}
+                </li>
+              </ul>
+            </li>
+            {% endif %}
+            <li class="divider-vertical"></li>
+            {% if website.languages.size > 1 %}
+              <li class="dropdown">
+                <a class="dropdown-toggle" href="#" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" title="{{ website.selected_language.name | escape }}">
+                  <span class="drop_language">{{ website.selected_language.name | escape }}</span>
+                  <span class="caret"></span>
+                </a>
+                {% include 'Languages Dropdown' %}
+              </li>
+            <li class="divider-vertical"></li>
+            
+            {% endif %}
+            {% if user %}
+              <!-- Notification -->
+              <li id="noti_Container">
+                <div id="noti_Counter" class="noti_Counter"></div>
+                <div id="noti_Button" class="noti_Button"><span class="glyphicon glyphicon-bell notificationimg"></span></div>
+                <div id="notifications" class="noti_panel">
+                  <h3 class="NTitle">Notifications</h3>
+                  <div id="NotificationContent" class="noti_content"></div>
+                  <div class="seeAll" onclick="SeeAllNotifications()"><a href="/your-notifications">See All</a></div>
+                </div>
+              </li>
+              <li class="divider-vertical"></li>
+              <!-- Action Request -->
+              <li id="act_Container">
+                <div id="act_Counter" class="noti_Counter"></div>
+                <div id="act_Button" class="noti_Button"><span class="glyphicon glyphicon-tasks notificationimg"></span></div>
+                <div id="div_actionrequest" class="noti_panel">
+                  <h3 class="NTitle">Action Requests</h3>
+                  <div id="div_actionrequestcontent" class="noti_content"></div>
+                  <div class="seeAll" onclick="SeeAllActionRequests()"><a href="/your-action-requests">See All</a></div>
+                </div>
+              </li>
+              <li class="divider-vertical"></li>
+              <li class="dropdown">
+                <a href="#" class="dropdown-toggle" title="{{ user.fullname | escape }}" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                    <span class="username">{{ user.fullname | escape }}</span>
+                    <span class="caret"></span>
+                </a>
+                <ul class="dropdown-menu" role="menu">
+                  {% assign show_profile_nav = settings["Header/ShowAllProfileNavigationLinks"] | boolean | default:true %}
+                  {% if show_profile_nav %}
+                    {% assign profile_nav = weblinks["Profile Navigation"] %}
+                    {% if profile_nav %}
+                      {% for link in profile_nav.weblinks %}
+                        <li>
+                          <a href="{{ link.url | escape }}" title="{{ link.name | escape }}">{{ link.name | escape }}</a>
+                        </li>
+                      {% endfor %}
+                    {% endif %}
+                  {% else %}
+                    <li><a href="{{ sitemarkers['Profile'].url | escape }}">{{ snippets["Profile Link Text"] | default:"Profile" }}</a></li>
+                  {% endif %}
+                  <li class="divider" role="separator"></li>
+                  <li>
+                    <a href="{% if homeurl%}/{{ homeurl }}{% endif %}/Account/Login/LogOff?returnUrl={{ request.raw_url_encode | escape }}" title="{{ snippets["links/logout"] | default:resx["Sign_Out"] | escape }}">
+                      {{ snippets["links/logout"] | default:resx["Sign_Out"] | escape }}
+                    </a>
+                  </li>
+                </ul>
+              </li>
+            {% else %}
+              <li>
+                <a href="{% if homeurl%}/{{ homeurl }}{% endif %}/SignIn?returnUrl={{ request.raw_url_encode }}">
+                  {{ snippets["links/login"] | default:resx["Sign_In"] }}
+                </a>
+              </li>
+            {% endif %}
+          </ul>
+          {% editable primary_nav %}
+        </div>
+      {% endif %}
+      <div class="navbar-right hidden-xs">
+        {% editable snippets 'Navbar Right' type: 'html' %}
+      </div>
+      <!-- <div class="navbar-right">
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            {% editable quick_links %}
+      </div> -->
+    </div>
+  </div>
+</div>
+
+
+{% assign current_page = page.adx_partialurl %}
+{% assign sr_page = sitemarkers["Search"].url | remove: '/' %}
+{% assign forum_page = sitemarkers["Forums"].url | remove: '/' %}
+{% if current_page == sr_page or current_page == forum_page %}
+  <section class="page_section section-landing-{{ current_page }} color-inverse">
+    <div class="container">
+      <div class="row ">
+        <div class="col-md-12 text-center">
+          {% if current_page == sr_page %}
+            <h1 class="section-landing-heading">{% editable snippets 'Search/Title' default: resx["Discover_Contoso"] %}</h1>
+            {% include 'Search' %}
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </section>
+{% endif %}
+<script type="text/javascript">
+    function setHeight() {
+        var windowHeight = window.innerHeight - 140;
+        var navbar = document.getElementById("navbar");
+        if (navbar) {
+            navbar.style.maxHeight = windowHeight + "px";
+        }
+    }
+
+    window.addEventListener('resize', function (event) {
+        setHeight();
+    });
+</script>

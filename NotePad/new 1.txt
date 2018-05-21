@@ -1,0 +1,6 @@
+Create a new page template:Contact Placements Team
+Create a new web template:Contact Placements Team
+Edit the Contact Placements Team Web page to use the new web template Contact Placements Team
+
+
+ccl1000_product_contact_courseid

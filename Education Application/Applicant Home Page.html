@@ -1,0 +1,754 @@
+{% fetchxml ResultApplications %}
+<fetch version="1.0" output-format="xml-platform" mapping="logical" distinct="false" returntotalrecordcount="true">
+  <entity name="ccl1007_kpis">
+    <attribute name="ccl1007_kpisid" />
+    <attribute name="ccl1007_name" />
+    <attribute name="ccl1007_kpidetail" />
+    <order attribute="ccl1007_name" descending="false" />
+    <filter type="and">
+      <condition attribute="ccl1007_name" operator="like" value="%Number of Applications in Progress%" />
+    </filter>
+  </entity>
+</fetch>
+{% endfetchxml%}
+
+{% if ResultApplications.results.entities[0].ccl1007_kpidetail %}
+	{% fetchxml Applications %}
+	{{ ResultApplications.results.entities[0].ccl1007_kpidetail }}	
+	{% endfetchxml%}
+{% endif %}
+
+{% fetchxml ResultInterview %}
+<fetch version="1.0" output-format="xml-platform" mapping="logical" distinct="false" returntotalrecordcount="true">
+  <entity name="ccl1007_kpis">
+    <attribute name="ccl1007_kpisid" />
+    <attribute name="ccl1007_name" />
+    <attribute name="ccl1007_kpidetail" />
+    <order attribute="ccl1007_name" descending="false" />
+    <filter type="and">
+      <condition attribute="ccl1007_name" operator="like" value="%Upcoming Interviews%" />
+    </filter>
+  </entity>
+</fetch>
+{% endfetchxml%}
+
+{% if ResultInterview.results.entities[0].ccl1007_kpidetail | newline_to_br | strip_newlines %}
+	{% fetchxml Interview %}
+	{{ResultInterview.results.entities[0].ccl1007_kpidetail | strip_newlines}}
+	{% endfetchxml%}
+{% endif %}
+
+{% fetchxml ResultActionRequest %}
+<fetch version="1.0" output-format="xml-platform" mapping="logical" distinct="false" returntotalrecordcount="true">
+  <entity name="ccl1007_kpis">
+    <attribute name="ccl1007_kpisid" />
+    <attribute name="ccl1007_name" />
+    <attribute name="ccl1007_kpidetail" />
+    <order attribute="ccl1007_name" descending="false" />
+    <filter type="and">
+      <condition attribute="ccl1007_name" operator="like" value="%Outstanding Actions Requests%" />
+    </filter>
+  </entity>
+</fetch>
+{% endfetchxml%}
+
+{% if ResultActionRequest.results.entities[0].ccl1007_kpidetail | newline_to_br | strip_newlines %}
+	{% fetchxml ActionRequest %}
+	{{ResultActionRequest.results.entities[0].ccl1007_kpidetail | strip_newlines}}
+	{% endfetchxml%}
+{% endif %}
+
+{% fetchxml ResultEnquiries %}
+<fetch version="1.0" output-format="xml-platform" mapping="logical" distinct="false" returntotalrecordcount="true">
+  <entity name="ccl1007_kpis">
+    <attribute name="ccl1007_kpisid" />
+    <attribute name="ccl1007_name" />
+    <attribute name="ccl1007_kpidetail" />
+    <order attribute="ccl1007_name" descending="false" />
+    <filter type="and">
+      <condition attribute="ccl1007_name" operator="like" value="%Open Enquiries%" />
+    </filter>
+  </entity>
+</fetch>
+{% endfetchxml%}
+
+{% if ResultEnquiries.results.entities[0].ccl1007_kpidetail | newline_to_br | strip_newlines %}
+{% fetchxml Enquiries %}
+{{ResultEnquiries.results.entities[0].ccl1007_kpidetail | strip_newlines}}
+{% endfetchxml%}
+{% endif %}
+
+<div class="container">
+			<div class="page-heading">
+				<ul class="breadcrumb">
+			  {% for crumb in page.breadcrumbs -%}
+					<li>
+						<a href="{{ crumb.url }}">{{ crumb.title }}</a>
+					</li>
+			  {% endfor -%}
+					<li class="active">{{ page.title }}</li>
+				</ul>
+				<div class="page-header">		 
+				{% if user %}
+				<h1>Hello {{ user.firstname }}</h1>
+				{% endif %}						
+				</div>
+			</div>
+				<div class="row">
+					<div class="col-sm-12 col-lg-12">
+					  {% include 'Page Copy' %} 
+						<div class="tabbable" id="tabs-276768">
+<div class="container">
+    <div class="row">
+        <div class="col-sm-3 col-lg-3 col-xs-6" style="margin-bottom: 20px;">
+            <div class="media kpi" onclick="JumpToAppication()" style="cursor: pointer;">
+                <div class="pull-left"><img src="/application.png" class="media-object" alt="" style="height: 40px;"></div>
+                <div class="media-body">
+                    <h4 class="media-heading" id="ApplicationCount">
+                    {% if Applications %}					
+						{% if Applications.results.total_record_count == 0 %}	
+						0
+						{% else %}
+							{% assign applicationCount = 0 %}
+							{% for citem in Applications.results.entities %}
+								{% if citem.ccl1000_studentlearnerid.id == user.id %}
+								{% assign applicationCount = applicationCount | plus: 1  %}
+								{% endif %}
+							{% endfor %}
+							{{ applicationCount }}
+						{% endif %}
+					{% else %}
+						0
+					{% endif %} 					
+                    </h4>Applications in progress		
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-3 col-lg-3 col-xs-6" style="margin-bottom: 20px;">
+            <div class="media kpi" onclick="JumpToInterview()" style="cursor: pointer;">
+                <div class="pull-left"><img src="/interview.png" class="media-object" alt="" style="height: 40px;"></div>
+                <div class="media-body">
+                    <h4 class="media-heading" id="InterviewCount">
+                     {% if Interview %}
+						{% if Interview.results.total_record_count == 0 %}	
+						0
+						{% else %}
+							{% assign interviewCount = 0 %}
+							{% for citem in Interview.results.entities %}
+								{% if citem.ccl1000_studentid.id == user.id %}
+								{% assign interviewCount = interviewCount | plus: 1  %}
+								{% endif %}
+							{% endfor %}
+							{{ interviewCount }}
+						{% endif %}
+					{% else %}
+						0
+					{% endif %}  
+                    </h4>Upcoming Interviews
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-3 col-lg-3 col-xs-6" style="margin-bottom: 20px;">
+            <div class="media kpi" onclick="JumpToActionRequest()" style="cursor: pointer;">
+                <div class="pull-left"><img src="/document.png" class="media-object" alt="" style="height: 40px;"></div>
+                <div class="media-body">
+                    <h4 class="media-heading" id="DocumentCount">
+					{% if ActionRequest %}
+						{% if ActionRequest.results.total_record_count == 0 %}	
+						0
+						{% else %}
+							{% assign actionrequestCount = 0 %}
+							{% for citem in ActionRequest.results.entities %}
+								{% if citem.ccl1007_applicantid.id == user.id %}
+								{% assign actionrequestCount = actionrequestCount | plus: 1  %}
+								{% endif %}
+							{% endfor %}
+							{{ actionrequestCount }}
+						{% endif %}
+					{% else %}
+						0
+					{% endif %}  
+                    </h4>Outstanding Action Requests	
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-3 col-lg-3 col-xs-6" style="margin-bottom: 20px;">
+            <div class="media kpi" onclick="JumpToEnquiries()" style="cursor: pointer;">
+                <div class="pull-left"><img src="/task.png" class="media-object" alt="" style="height: 40px;"></div>
+                <div class="media-body">
+                    <h4 class="media-heading" id="TaskCount">
+                    {% if Enquiries %}
+						{% if Enquiries.results.total_record_count == 0 %}	
+						0
+						{% else %}
+							{% assign enquiryCount = 0 %}
+							{% for citem in Enquiries.results.entities %}
+								{% if citem.customerid.id == user.id %}
+								{% assign enquiryCount = enquiryCount | plus: 1  %}
+								{% endif %}
+							{% endfor %}
+							{{ enquiryCount }}
+						{% endif %}
+					{% else %}
+						0
+					{% endif %}  
+                    </h4>Open Enquiries
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+							<ul class="nav nav-tabs">
+								<li class="active">
+									<a href="#panel1" data-toggle="tab">Overview</a>
+								</li>
+								<li>
+									<a href="#panel2" data-toggle="tab">Course Search</a>
+								</li>
+								<li>
+									<a href="#panel3" data-toggle="tab">My Details</a>
+								</li>
+							</ul>
+							<div class="tab-content">
+								<div class="tab-pane active" id="panel1">
+									<p>
+										<div class="row">
+											<div class="col-sm-6 col-lg-6 maintab1">
+											<div>
+                                            <h3>Applications in Progress</h3>
+											{% include 'entity_list' key:'1A157328-CE99-E711-8103-70106FAAF8C1' %}    
+											</div> 
+											</div>
+											<div class="col-sm-6 col-lg-6 maintab2">	
+											<div>    
+											<h3>Application Documents</h3>
+											{% include 'entity_list' key:'54840730-6553-E811-812E-70106FAA6A11' %}
+											</div> 
+											</div>
+										</div>
+										<div class="row">
+											<div class="col-sm-6 col-lg-6 maintab3">
+											<div>    
+											<h3>Upcoming Interviews</h3>
+											{% include 'entity_list' key:'9BA78C86-31A4-E711-8106-70106FAAF8C1' %}
+											</div>
+											</div>
+											<div class="col-sm-6 col-lg-6 maintab4">
+											<div>    
+											<h3>Enquiries in Progress</h3>
+											{% include 'entity_list' key:'8AA94A3E-9AAD-E711-8103-E0071B7FE041' %}      
+											</div> 
+											</div>
+										</div>
+									</p>
+								</div>
+								<div class="tab-pane" id="panel2">
+									<p>
+										<div id="mainform" style="display: none;" class="container">
+											<div class="row">
+												<div id="Validation" class="validation-summary alert alert-error alert-danger alert-block" role="alert" tabindex="0" aria-label="Please select an Academic Year before apply." style="display: none;"><h4 class="validation-header"><span role="presentation" class="fa fa-info-circle"></span> Please select an Academic Year before apply.</h4>
+												</div>
+												{% block main %}
+												<div id="searchdiv" style="min-height: 400px; display: none;">
+												{% include 'entity_list' key:'5362DD61-4898-E711-80FF-E0071B7FE041' %}  
+												</div>
+
+													{% if page.adx_entityform %}
+														{% entityform id: page.adx_entityform.id %}
+													{% endif %}
+															
+												   {% endblock %}
+													<!-- Display rest of the form -->
+												</div>
+										  </div>
+									</p>
+								</div>
+								<div class="tab-pane" id="panel3">
+									<div class="container">
+									<a id="educationhistory" style="cursor:pointer">
+			<h3>My Education History</h3>
+			</a>     
+			
+			<div id="educationhistory-div" style="display:none;">   
+			{% include 'entity_list' key:'68D14827-A096-E711-80FF-E0071B7FE041' %}        
+			</div> 
+			
+			<a id="employmenthistory" style="cursor:pointer">
+			<h3>My Employment History</h3>
+			</a>      
+
+			<div id="employmenthistory-div" style="display:none;">    
+
+			{% include 'entity_list' key:'3516B5FE-A496-E711-80FF-E0071B7FE041' %}        
+			</div> 
+			
+			<a id="qualifications" style="cursor:pointer">
+			<h3>My Qualifications</h3>
+			</a>      
+	
+			<div id="qualifications-div" style="display:none;">    
+
+			{% include 'entity_list' key:'FA9808B0-6794-E711-8103-70106FAA6A31' %}        
+			</div> 
+			
+			<a id="references" style="cursor:pointer">
+			<h3>My References</h3>
+			</a>      
+			<div id="references-div" style="display:none;">    
+
+			{% include 'entity_list' key:'EDF0652A-B596-E711-8103-70106FAA6A31' %}        
+			</div> 
+			
+			<a id="actionrequests" style="cursor:pointer">
+			<h3>My Action Requests</h3>
+			</a>      
+	
+			<div id="actionrequests-div" style="display:none;">    
+			{% include 'entity_list' key:'3AD5FE07-B496-E711-80FF-E0071B7FE041' %}        
+			</div> 
+			
+			<a id="documents" style="cursor:pointer">
+			<h3>My Documents</h3>
+			</a>      
+			<div id="documents-div" style="display:none;">    
+		
+
+			{% include 'entity_list' key:'2C9A3733-9496-E711-8103-70106FAA6A31' %}        
+			</div> 
+			
+			<a id="applications" style="cursor:pointer">
+			<h3>My Applications</h3>
+			</a>      
+		
+			<div id="applications-div" style="display:none;">    
+
+			{% include 'entity_list' key:'1A157328-CE99-E711-8103-70106FAAF8C1' %}        
+			</div> 
+			
+			 <a id="enquiries" style="cursor:pointer">
+			<h3>My Enquiries</h3>
+			</a>      
+		
+			<div id="enquiries-div" style="display:none;">    
+
+			{% include 'entity_list' key:'8AA94A3E-9AAD-E711-8103-E0071B7FE041' %}        
+			</div> 
+			
+			 <a id="interviews" style="cursor:pointer">
+			<h3>My Interviews</h3>
+			</a>      
+		
+			<div id="interviews-div" style="display:none;">    
+
+			{% include 'entity_list' key:'9BA78C86-31A4-E711-8106-70106FAAF8C1' %}        
+			</div> 
+			
+			<a id="offers" style="cursor:pointer">
+			<h3>My Offers</h3>
+			</a>      
+		
+			<div id="offers-div" style="display:none;">    
+
+			{% include 'entity_list' key:'74A3C241-DD30-E811-811C-70106FAA6A31' %}        
+			</div> 
+			
+			</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#educationhistory-div").hide();
+        $("#employmenthistory-div").hide();
+        $("#qualifications-div").hide();
+        $("#references-div").hide();
+        $("#actionrequests-div").hide();
+        $("#documents-div").hide();
+        $("#applications-div").hide();
+        $("#enquiries-div").hide();
+        $("#interviews-div").hide();
+        $("#offers-div").hide();
+
+        $("#educationhistory").show();
+        $("#employmenthistory").show();
+        $("#qualifications").show();
+        $("#references").show();
+        $("#actionrequests").show();
+        $("#documents").show();
+        $("#applications").show();
+        $("#enquiries").show();
+        $("#interviews").show();
+        $("#offers").show();
+
+        $("#educationhistory").click(function () {
+            $("#educationhistory-div").toggle();
+        });
+        $("#employmenthistory").click(function () {
+            $("#employmenthistory-div").toggle();
+        });
+        $("#qualifications").click(function () {
+            $("#qualifications-div").toggle();
+        });
+        $("#references").click(function () {
+            $("#references-div").toggle();
+        });
+        $("#actionrequests").click(function () {
+            $("#actionrequests-div").toggle();
+        });
+        $("#documents").click(function () {
+            $("#documents-div").toggle();
+        });
+        $("#applications").click(function () {
+            $("#applications-div").toggle();
+        });
+        $("#enquiries").click(function () {
+            $("#enquiries-div").toggle();
+        });
+        $("#interviews").click(function () {
+            $("#interviews-div").toggle();
+        });
+        $("#offers").click(function () {
+            $("#offers-div").toggle();
+        });
+
+    });
+
+    function JumpToAppication() {
+        $("#educationhistory-div").hide();
+        $("#employmenthistory-div").hide();
+        $("#qualifications-div").hide();
+        $("#references-div").hide();
+        $("#actionrequests-div").hide();
+        $("#documents-div").hide();
+        $("#applications-div").hide();
+        $("#enquiries-div").hide();
+        $("#interviews-div").hide();
+        $('[href="#panel3"]').tab('show');
+        $('#applications-div').show();
+        window.location.hash = "#applications";
+    }
+
+    function JumpToInterview() {
+        $("#educationhistory-div").hide();
+        $("#employmenthistory-div").hide();
+        $("#qualifications-div").hide();
+        $("#references-div").hide();
+        $("#actionrequests-div").hide();
+        $("#documents-div").hide();
+        $("#applications-div").hide();
+        $("#enquiries-div").hide();
+        $("#interviews-div").hide();
+        $('[href="#panel3"]').tab('show');
+        $('#interviews-div').show();
+        window.location.hash = "#interviews";
+    }
+
+    function JumpToActionRequest() {
+        $("#educationhistory-div").hide();
+        $("#employmenthistory-div").hide();
+        $("#qualifications-div").hide();
+        $("#references-div").hide();
+        $("#actionrequests-div").hide();
+        $("#documents-div").hide();
+        $("#applications-div").hide();
+        $("#enquiries-div").hide();
+        $("#interviews-div").hide();
+        $('[href="#panel3"]').tab('show');
+        $('#actionrequests-div').show();
+        window.location.hash = "#actionrequests";
+    }
+
+    function JumpToEnquiries() {
+        $("#educationhistory-div").hide();
+        $("#employmenthistory-div").hide();
+        $("#qualifications-div").hide();
+        $("#references-div").hide();
+        $("#actionrequests-div").hide();
+        $("#documents-div").hide();
+        $("#applications-div").hide();
+        $("#enquiries-div").hide();
+        $("#interviews-div").hide();
+        $('[href="#panel3"]').tab('show');
+        $('#enquiries-div').show();
+        window.location.hash = "#enquiries";
+    }
+</script>
+<script type="text/javascript">
+    var currentstage;
+    var viewloaded = false;
+    var buttonreplaced = false;
+
+    $(document).ready(function () {
+
+        //table code
+        $("#ccl1007_originalapplicationid").parent().parent().parent().hide();
+
+        //if($("input[name='search']").val()=='')
+        //{$("#searchview").hide();}
+        $('table').removeClass('table-striped')
+        $(".entity-grid").on("loaded", function () {
+            $('table').removeClass('table-striped')
+
+        });
+
+        $("#ccl1000_programmeid_label").parent().next().hide();
+        $("#ccl1000_academicyearid_label").parent().parent().hide();
+        $("#ccl1000_programmeid_label").parent().next().hide();
+        $('#InsertButton').hide();
+        $("h2:contains('Start New Application')").hide();
+
+        $("#ccl1000_programmeid_label").parent().after("<div id='search' class='control'></div>");
+        $("#searchdiv").appendTo($("#search"));
+
+        /*
+                $(".entity-grid[data-selected-view='debe4fa6-7d93-e711-8103-70106faa6a31']").on("loaded", function() {
+                if($(".maintab1").height() > $(".maintab2").height()){
+                $(".maintab2").css("height",$(".maintab1").height());
+                $(".maintab2").children().height($(".maintab1").children().height());
+                $(".maintab2").children().children("div").height($(".maintab1").children().children("div").height());
+                }else{
+                $(".maintab1").css("height",$(".maintab2").height());
+                $(".maintab1").children().height($(".maintab2").children().height());
+                $(".maintab1").children().children("div").height($(".maintab2").children().children("div").height());
+                }
+                });
+                $(".entity-grid[data-selected-view='c1a1be32-9aac-e711-8103-e0071b7fe041']").on("loaded", function() {
+                if($(".maintab1").height() > $(".maintab2").height()){
+                $(".maintab2").css("height",$(".maintab1").height());
+                $(".maintab2").children().height($(".maintab1").children().height());
+                $(".maintab2").children().children("div").height($(".maintab1").children().children("div").height());
+                }else{
+                $(".maintab1").css("height",$(".maintab2").height());
+                $(".maintab1").children().height($(".maintab2").children().height());
+                $(".maintab1").children().children("div").height($(".maintab2").children().children("div").height());
+                }
+                });
+                $(".entity-grid[data-selected-view='a4ca06fb-729e-e711-8104-70106faaf8c1']").on("loaded", function() {
+                if($(".maintab3").height() > $(".maintab4").height()){
+                $(".maintab4").css("height",$(".maintab3").height());
+                $(".maintab4").children().height($(".maintab3").children().height());
+                $(".maintab4").children().children("div").height($(".maintab3").children().children("div").height());
+                }else{
+                $(".maintab3").css("height",$(".maintab4").height());
+                $(".maintab3").children().height($(".maintab4").children().height());
+                $(".maintab3").children().children("div").height($(".maintab4").children().children("div").height());
+                }
+                });
+                $(".entity-grid[data-selected-view='be28a54d-99ad-e711-8103-e0071b7fe041']").on("loaded", function() {
+                if($(".maintab3").height() > $(".maintab4").height()){
+                $(".maintab4").css("height",$(".maintab3").height());
+                $(".maintab4").children().height($(".maintab3").children().height());
+                $(".maintab4").children().children("div").height($(".maintab3").children().children("div").height());
+                }else{
+                $(".maintab3").css("height",$(".maintab4").height());
+                $(".maintab3").children().height($(".maintab4").children().height());
+                $(".maintab3").children().children("div").height($(".maintab4").children().children("div").height());
+                }
+                });
+                */
+        /*
+        $(".maintab").each(function(){
+$(this).height($(this).parent().height());
+$(this).children().height($(this).parent().height());
+$(this).children().children("div").height($(this).parent().height()-60);
+
+});
+*/
+
+        $(".entity-grid[data-selected-view='82b13e85-4998-e711-8103-70106faaf8c1']").on("loaded", function () {
+            //$(".pull-right.toolbar-actions").eq(3).removeClass("pull-right");
+            //$(".pull-right.toolbar-actions").eq(2).removeClass("pull-right");
+            $(".entity-grid[data-selected-view='82b13e85-4998-e711-8103-70106faaf8c1']").children().children().eq(0).removeClass("pull-right");
+            $(".entity-grid[data-selected-view='82b13e85-4998-e711-8103-70106faaf8c1']").children().eq(1).children().children('thead').first().children().children().removeAttr("style");
+
+            $(".entity-grid[data-selected-view='82b13e85-4998-e711-8103-70106faaf8c1']").children().eq(1).children().children('thead').first().children().children().first().attr("style", "width: 35%;");
+            if (!viewloaded) {
+                $(".input-group.pull-left.view-search.entitylist-search").first().attr("style", "width: 100%;");
+                $(".entity-grid[data-selected-view='82b13e85-4998-e711-8103-70106faaf8c1']").children().eq(1).children().children('thead').first().children().append("<th id='academicyearth' width='140px' align='center' style='width: 120px;'>Academic Year</th><th id='datailth' width='1' align='center' style='width: 120px;'>Course Details</th><th id='actionth' width='1' align='center' style='text-align: center;width: 70px;'></th>");
+
+                $(".entity-grid[data-selected-view='82b13e85-4998-e711-8103-70106faaf8c1']").children().eq(1).children().children('thead').parent().hide();
+                $(".entity-grid[data-selected-view='82b13e85-4998-e711-8103-70106faaf8c1']").children().eq(6).first().hide();
+                viewloaded = true;
+            }
+            $("input.query.form-control[placeholder='Search']").attr("style", "width: 99%;");
+            $("#datailth").attr("style", "width: 120px;");
+            $("#actionth").attr("style", "width: 70px;");
+
+            $(".entity-grid[data-selected-view='82b13e85-4998-e711-8103-70106faaf8c1']").children().eq(1).children().children('thead').next().children().each(function () {
+                var html1 = "<td data-th='Academic Year' aria-label='Academic Year' style='width: 140px;'><select class='form-control picklist academicyear' data-id='"+$(this).data("id")+"'><option value=''></option></select></td><td align='center' class='CourseDetailsTd' data-th='Course Details' aria-label='Course Details' style='width: 120px;'> <button class='btn btn-primary btn-xs Open' title='Open' data-id='"+$(this).data("id")+"' data-name='"+$(this).data("name")+"' data-logicalname='product' > Open</i> </button> </td> <td align='center'> <button class='btn btn-primary btn-xs Select' title='Apply' data-id='"+$(this).data("id")+"' data-name='"+$(this).data("name")+"' data-logicalname='product' > Apply</i> </button> </td>";
+                $(this).append(html1);
+
+            });
+
+            $("#academicyearth").html("Academic Year <font color='#a94442'>*</font> ")
+
+            $("select.academicyear").each(function () {
+                var httpReq = new XMLHttpRequest();
+                httpReq.open("GET", "/course-session-json/?id=" + $(this).data("id"), false);
+                httpReq.setRequestHeader("Accept", "application/json");
+                httpReq.setRequestHeader("Content-Type", "application/json; charset=utf-8");
+                httpReq.send(null);
+                if (httpReq.status == 200) {
+                    var Result = JSON.parse(httpReq.responseText);
+                    if (Result.totalcount > 0) {
+                        var new_arr = [];
+                        for (var i = 0; i < Result.results.length; i++) {
+                            if (Result.results[i].ccl1000_academicyearid != "") {
+                                var items = Result.results[i].ccl1000_academicyearid;
+                                if ($.inArray(items, new_arr) == -1) {
+                                    new_arr.push(items);
+                                    $(this).append("<option value='" + Result.results[i].ccl1000_academicyearid + "'>" + Result.results[i].ccl1000_academicyear + "</option>");
+                                }
+                            }
+                        }
+                    }
+                }
+                $(this).change(function () {
+                    if (this.value != "") {
+                        var httpReq = new XMLHttpRequest();
+                        httpReq.open("GET", "/course-session-json/?id=" + $(this).data("id") + "&academicyearid=" + this.value, false);
+                        httpReq.setRequestHeader("Accept", "application/json");
+                        httpReq.setRequestHeader("Content-Type", "application/json; charset=utf-8");
+                        httpReq.send(null);
+                        if (httpReq.status == 200) {
+                            var Result = JSON.parse(httpReq.responseText);
+                            if (Result.totalcount == 0) {
+                                $("button.Select[data-id='" + $(this).data("id") + "']").addClass("disabled");
+                                $("button.Select[data-id='" + $(this).data("id") + "']").attr("title", "The deadline for this Programme has passed");
+                                $("button.Select[data-id='" + $(this).data("id") + "']").unbind("click");
+                                $("button.Select[data-id='" + $(this).data("id") + "']").bind("click", function () {
+                                    return false;
+                                });
+                            }
+                            else {
+                                $("button.Select[data-id='" + $(this).data("id") + "']").removeClass("disabled");
+                                $("button.Select[data-id='" + $(this).data("id") + "']").attr("title", "Apply");
+                                $("button.Select[data-id='" + $(this).data("id") + "']").unbind("click");
+                                $("button.Select[data-id='" + $(this).data("id") + "']").bind("click", function () {
+                                    $("#ccl1000_programmeid").val($(this).data("id")).addClass("dirty");
+                                    $("#ccl1000_programmeid_name").val($(this).data("name"));
+                                    $("#ccl1000_programmeid_entityname").val($(this).data("logicalname"));
+                                    $("input[placeholder='Search']").val($(this).data("name"));
+
+                                    $("#ccl1000_academicyearid").val($($(this).parent().prev().prev().children()[0]).val()).addClass("dirty");
+                                    $("#ccl1000_academicyearid_entityname").val("ccl1000_academicyear");
+
+                                    if ($("#ccl1000_academicyearid").val() == "") {
+                                        $("#Validation").show();
+                                        return false;
+                                    }
+                                    else {
+                                        $("#Validation").hide();
+                                        document.getElementById('InsertButton').click();
+                                    }
+                                });
+                            }
+                        }
+                    }
+                });
+            });
+
+            $("button.Select").each(function () {
+                $(this).click(function () {
+                    $("#ccl1000_programmeid").val($(this).data("id")).addClass("dirty");
+                    $("#ccl1000_programmeid_name").val($(this).data("name"));
+                    $("#ccl1000_programmeid_entityname").val($(this).data("logicalname"));
+                    $("input[placeholder='Search']").val($(this).data("name"))
+
+                    $("#ccl1000_academicyearid").val($($(this).parent().prev().prev().children()[0]).val()).addClass("dirty");
+                    $("#ccl1000_academicyearid_entityname").val("ccl1000_academicyear");
+
+                    if ($("#ccl1000_academicyearid").val() == "") {
+                        $("#Validation").show();
+                    }
+                    else {
+                        $("#Validation").hide();
+                        document.getElementById('InsertButton').click();
+                    }
+                    //$("thead").parent().hide();
+                    //$(".view-pagination").first().hide();
+                    //$("#mainform").hide();
+                });
+            });
+
+            $("button.Open").each(function () {
+                $(this).click(function () {
+                    var httpReq = new XMLHttpRequest();
+                    httpReq.open("GET", "/course-search-json/?id=" + $(this).data("id"), false);
+                    httpReq.setRequestHeader("Accept", "application/json");
+                    httpReq.setRequestHeader("Content-Type", "application/json; charset=utf-8");
+                    httpReq.send(null);
+                    if (httpReq.status == 200) {
+                        var Result = JSON.parse(httpReq.responseText);
+                        if (Result.totalcount > 0) {
+                            window.open(Result.results[0].producturl);
+                            //location.href = Result.results[0].producturl;
+                        }
+                    }
+                });
+            });
+
+            $("button[title='Search Results']").each(function () {
+                $(this).click(function () {
+                    $(".entity-grid[data-selected-view='82b13e85-4998-e711-8103-70106faaf8c1']").children().eq(1).children().children('thead').parent().show();
+                    //$(".view-pagination").first().show();
+                });
+            });
+
+            //$("span:contains('Search Results')").first().next().hide();
+            $("span:contains('Search Results')").first().next().remove();
+            if (!buttonreplaced) {
+                $("span:contains('Search Results')").first().after("Search");
+
+                $(".entity-grid[data-selected-view='82b13e85-4998-e711-8103-70106faaf8c1']").children().eq(1).children().children('thead').parent().hide();
+                $(".entity-grid[data-selected-view='82b13e85-4998-e711-8103-70106faaf8c1']").children().eq(6).first().hide();
+
+                buttonreplaced = true;
+            }
+            $("span:contains('Search Results')").first().parent().addClass("btn-primary");
+
+            $("#searchdiv").show();
+
+            setTimeout(function () {
+                if ($('.view-empty.message').attr('style') == "display: block;")
+                    $(".view-pagination").first().hide();
+            }, 600);
+        });
+
+        $("#mainform").show();
+    });
+</script>
+<style type="text/css">
+
+{% unless user.roles contains 'Administrators' %}
+div.yui-panel-container.xrm-editable-toolbar-pinned{display:none!important;}
+div.xrm-editable-overlay{display:none!important;}
+div.xrm-editable-hover{outline:1px solid rgba(0, 0, 0,0)!important;}
+{% endunless %}
+
+div.kpi:hover {
+  border-bottom: 1px solid #B22316;
+}
+
+div.entity-grid .view-grid table thead{background:#f9f9f9;}
+div.entity-grid .view-grid table{border: 1px;border-style: solid;border-color: #DDDDDD;}
+.table > thead > tr > th, .table > tbody > tr > th, .table > tfoot > tr > th, .table > thead > tr > td, .table > tbody > tr > td, .table > tfoot > tr > td
+{
+vertical-align:middle;
+}
+
+@media screen and (max-width: 768px) {
+    #EntityFormControl_d2b0a6da6d94e711810370106faaf8c1_EntityFormView > div.tab.clearfix > div > div > fieldset > table > tbody > tr:nth-child(1) > td.clearfix.cell.lookup.form-control-cell
+        {
+        padding-top: 20px;
+        }
+        .table-fluid td.CourseDetailsTd:before {
+            margin-left: -13.5rem;
+        }
+}
+</style>

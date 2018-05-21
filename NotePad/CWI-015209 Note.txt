@@ -1,0 +1,18 @@
+Edit the Page Copy on Profile web page to add the text on mock up
+
+Change the Css to make title bold
+.section-title.show-bar{
+  font-weight:bold;
+} 
+
+Use js to add text 'Select all that apply.' below 'How may we contact you?'
+var contacttext = $('<p/>');
+contacttext.text("Select all that apply.");
+$("#ContentContainer_MainContent_MainContent_ContentBottom_MarketingOptionsPanel").children().eq(0).children().eq(0).after(contacttext);
+
+Add css to Change the title style of Profile web page:
+.page-header h1 span{
+    color: white;
+    background-color: #010101;
+}
+	

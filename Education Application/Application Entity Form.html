@@ -1,0 +1,559 @@
+{% if request.params['id'] %}
+{% assign applicationid = request.params['id'] %}
+{% assign ccl1000_application = entities.ccl1000_application[applicationid] %}
+{% if ccl1000_application %}
+{% assign courseid = ccl1000_application.ccl1000_programmeid.id %}
+{% fetchxml Document %}  
+<fetch version="1.0" output-format="xml-platform" mapping="logical" distinct="false" returntotalrecordcount="true">
+  <entity name="ccl1007_applicationprerequisite">
+    <attribute name="ccl1007_applicationprerequisiteid" />
+    <attribute name="ccl1007_name" />
+    <attribute name="createdon" />
+	<attribute name="ccl1007_subject" />
+    <attribute name="ccl1007_description" />
+    <order attribute="ccl1007_subject" descending="false" />
+    <filter type="and">
+      <condition attribute="ccl1007_courseid" operator="eq" value="{{courseid}}" />
+      <condition attribute="ccl1007_type" operator="eq" value="890240001" />
+    </filter>
+  </entity>
+</fetch>
+{% endfetchxml%} 
+
+{% fetchxml Task %}  
+<fetch version="1.0" output-format="xml-platform" mapping="logical" distinct="false" returntotalrecordcount="true">
+  <entity name="ccl1007_applicationprerequisite">
+    <attribute name="ccl1007_applicationprerequisiteid" />
+    <attribute name="ccl1007_name" />
+    <attribute name="createdon" />
+	<attribute name="ccl1007_subject" />
+    <attribute name="ccl1007_description" />
+    <order attribute="ccl1007_subject" descending="false" />
+    <filter type="and">
+      <condition attribute="ccl1007_courseid" operator="eq" value="{{courseid}}" />
+      <condition attribute="ccl1007_type" operator="eq" value="890240000" />
+    </filter>
+  </entity>
+</fetch>
+{% endfetchxml%} 
+{% endif  %}
+{% endif  %}
+
+{% assign nav = weblinks["APPLICATION FORM"] %}
+{% assign current_page = current_page | default: page %}
+<div class="page-heading">
+   <div class="container">
+    <ul class="breadcrumb">
+      {% for crumb in page.breadcrumbs -%}
+        <li>
+          <a href="{{ crumb.url }}">{{ crumb.title }}</a>
+        </li>
+      {% endfor -%}
+      <li class="active">{{ page.title }}</li>
+    </ul>
+    <div class="page-header">
+      <h1>{% if nav %}{{ nav.name }}{% endif %}</h1>
+    </div>
+	</div>
+</div> 
+<div class="container">
+<div id="mainform" style="display: none;">
+	<div class="row">
+		<!-- Creating the Contact case menu from web links set for the web page -->
+		<div class="col-sm-4 col-lg-3 left-column">
+		 {% block aside %}
+			{% if nav %}
+				<div class="xrm-entity xrm-editable-adx_weblinkset">
+					<div class="list-group weblinks">	
+						{% for link in nav.weblinks %}
+							<a class="list-group-item weblink" href="javascript:void(0)" onclick="selected('{{ link.url | escape }}?id={{request.params['id']| xml_escape}}');"title="{{ link.tooltip | escape }}" aria-label="{{ link.name | escape }}">
+							  <h4 class="list-group-item-heading weblink-name">{{ link.name | escape }}</h4>
+							</a>
+							<!--get current url for next previous button -->
+							{% if link.is_sitemap_current %}
+								{% assign currentUrl = link.url %}
+							{% endif %}
+						{% endfor %}
+					</div>
+				</div>
+			{% endif %}
+			{% endblock %}
+		</div>
+		
+		<div class="col-sm-8 col-lg-9 right-column">
+			{% block main %}
+        {% if page.adx_entitylist %}
+		<div id="searchdiv" style="min-height: 400px; display: none;">
+        {% include 'entity_list' key:'5362DD61-4898-E711-80FF-E0071B7FE041' %}  
+		</div>
+        {% endif %}
+
+        	{% if page.adx_entityform %}
+						{% entityform id: page.adx_entityform.id %}
+			{% endif %}
+					
+		   {% endblock %}
+			<!-- Display rest of the form -->
+		</div>
+		</div>
+  </div>
+</div>
+<style type="text/css">
+.btn-info {
+	color: #fff;
+	background-color: #36f;
+	border-color: #36f;
+}
+.btn-is-disabled {
+  pointer-events: none; /* Disables the button completely. Better than just cursor: default; */
+  @include opacity(0.7);
+}
+/* hide submit button */
+#UpdateButton {
+display:none;
+}
+/*set the nav item border color*/
+.list-group-item.active {
+border-right:#ddd;
+border-bottom:#ddd;
+border-top:#ddd;
+}
+/*set completed color*/
+/* .navcompleted {
+border-left: 5px solid #86b26e !important;
+} */
+.navcompleted :before{ 
+    font-family:'FontAwesome'; 
+    content:"\f058"; 
+    color:#86b26e; /*#999*/
+    font-size:20px; 
+    margin-right:5px; 
+    margin-left:-8px 
+} 
+.list-group-item.active.navcompleted, .list-group-item.active.navcompleted:hover, .list-group-item.active.navcompleted:focus{ 
+    background-color: #E2F2DE !important;
+} 
+/*set navuncompleted color*/
+/* .navuncompleted {
+border-left: 4px solid #bc393b !important;
+}  
+*/
+.navuncompleted :before{ 
+    font-family:'FontAwesome'; 
+    content:"\f057"; 
+    color:#bc393b; 
+    font-size:20px; 
+    margin-right:5px; 
+    margin-left:-8px 
+} 
+a.list-group-item{
+    margin-right: -5px;
+}
+
+.entity-notes a.addnote {/* ajust Upload button to left */
+    float: left; 
+}
+
+{% unless page.title == "Application-Declaration" %}
+.validation-summary.alert.alert-error.alert-danger.alert-block {
+    display:none !important; 
+}
+{% endunless %}
+
+@media screen and (max-width: 768px) {
+    #MobileBr{
+        display: block !important;
+    }
+    #EntityFormPanel > div.row.form-custom-actions > div:nth-child(2) > div
+    {
+        float: left !important;
+    }
+    #btnSave{
+        float: none !important;
+    }
+    #EntityFormPanel > div.actions > input.btn{
+    float: none !important;
+    margin-left:0 !important;
+    margin-bottom: 5px !important;
+    margin-top: 5px !important;
+    }
+    .crmEntityFormView table.section{
+        overflow: initial !important;
+    }
+}
+
+</style>
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+<script type="text/javascript">
+	var currentstage;
+	var viewloaded = false;
+	
+	function GetQueryString(name)
+  {
+     var reg = new RegExp("(^|&)"+ name +"=([^&]*)(&|$)");
+     var r = window.location.search.substr(1).match(reg);
+     if(r!=null) return unescape(r[2]); return null;
+  }
+	
+	$(document).ready(function() {
+        
+		//table code
+		//if($("input[name='search']").val()=='')
+		  //{$("#searchview").hide();}
+		  
+		  //set required
+		  
+		//var RequiredFields=new Array("ccl1007_firstname","ccl1007_lastname","ccl1007_dateofbirth","ccl1007_gender","ccl1007_email","ccl1007_declarationconfirmation");
+		{% assign entityform_id = page.adx_entityform.id %} 
+		{% assign entityform= entities.adx_entityform[entityform_id] %}
+		var RequiredFields=new Array({{entityform.ccl1007_portalrequiredfields}});
+		
+		if(RequiredFields != '')
+		{
+		for (var i=0;i<RequiredFields.length;i++)
+		{
+		//console.log(RequiredFields[i])
+		if ( $("#"+RequiredFields[i]).length > 0 ) {
+		
+			CreateValidator(RequiredFields[i], RequiredFields[i]+" is a required field.");
+			
+			$("#"+RequiredFields[i]+"_label").parent().attr('class', 'info required');
+		}
+		}
+		}
+	 $("span.input-group-addon").click(function() {
+	  $(this).addClass('dirty');
+    });
+			  
+	$(".workflowbutton").hide();
+	//select button in the table
+		
+	//Replace url on load afer save
+	//alert(($("#ccl1007_nextstepurlpath").val()));
+
+	if ($("#MessageLabel") != 'undefined' & $("#ccl1007_nextstepurlpath") != 'undefined' & $("#ccl1007_nextstepurlpath").val() != null) {
+    if ($("#MessageLabel").length > 0 & ($("#MessageLabel").text() === 'Submission completed successfully.' || $("#MessageLabel").text() === 'Application Saved Successfully.') & $("#ccl1007_nextstepurlpath").val().length > 0) {
+        var loc = $("#ccl1007_nextstepurlpath").val();
+        if (getCookie('Submitted')==1) {
+			$("#MessagePanel").html("Submission completed successfully.");
+			delCookie('Submitted');
+        } else {
+            $("#MessagePanel").html("Application Saved Successfully.");
+        }
+        //confirm('relocate?');
+        
+        setTimeout(function () {window.location.replace(loc);},500);
+		return false;
+	}
+	}
+		
+	  if(getCookie('Submitted')==1)
+	  {
+		delCookie('Submitted');
+		$("#MessagePanel").html("Submitting Application.....");
+		  //add applicationid for complete page
+		  sessionStorage["oapplicationid"] = GetQueryString("id");
+			//$(".workflowbutton").click().attr('disabled',"true");
+			var timer = setInterval(function () {
+			if ($(".workflowbutton").length > 0) {
+			$(".workflowbutton").click();
+			 clearInterval(timer);  
+			}
+			}, 100);
+			//setTimeout(function () {$(".workflowbutton").click().attr('disabled',"true"); }, 100);
+			//setTimeout(function () {$(".workflowbutton").click().attr('disabled',"true"); }, 500);
+			//setTimeout(function () {$(".workflowbutton").click().attr('disabled',"true"); }, 1000);
+			
+			//setTimeout(function () {window.location.href='/application-submission-complete/'; }, 1000);
+	  }
+	  else
+	  {
+		 $("#MessagePanel").html("Application Saved Successfully.");
+	  }
+
+
+	$('.section-title:contains(Nav)').parent().hide();
+	 
+  	var saveBtntitle;
+		//get the nav matches url
+		$('div.list-group a[onclick*="{{page.url}}"]').each(function() {
+			//create buttons 
+			if($(this).next().attr("onclick")){
+			  //Create Next Button
+			  $("#UpdateButton").after("<input type='button' value='Next' onclick='' id='btnNext' title='Next' style='float: right;' class='btn btn-primary button submit-btn'>");
+				//$("#UpdateButton").parent().parent().next().html("<div class='form-action-container-right'><input type='button' value='Next' onclick='' id='btnNext' title='Next' class='btn btn-primary button submit-btn'></div>");
+				 $("#btnNext").attr("onclick", function(){
+				   //$('div.list-group a[onclick*="{{page.url}}"]').next().click();
+					 return $('div.list-group a[onclick*="{{page.url}}"]').next().attr("onclick");
+					 //document.getElementById('UpdateButton').click();
+				 });
+			}
+			else
+			{
+				$("#UpdateButton").after("<input type='button' value='Submit' onclick='' id='submitbutton' title='Next' style='float: right;' class='btn btn-primary button submit-btn' disabled='disabled'> ");
+			}
+			saveBtntitle =($(this).next().attr("onclick"))?  'Save' : 'Save';
+			//Create Previous Button
+			if($(this).prev().prev().attr("onclick")){
+				$("#UpdateButton").before("<input type='button' value='Previous' onclick='' id='btnPrevious' title='Previous' class='btn btn-primary button submit-btn'>");
+				$("#btnPrevious").attr("onclick", function(){
+					 return $('div.list-group a[onclick*="{{page.url}}"]').prev().attr("onclick");
+				 });
+			}
+			
+			//Set current selected menu item as active
+			  $(this).addClass('active');
+			  if($(this).is("[onclick*='application-new-application']")){
+				//disable rest of steps
+				$("div.list-group a:not(:first-child)").addClass('disabled btn-is-disabled');
+					  }else{
+					  //disable create
+						$("div.list-group a:first").addClass('disabled btn-is-disabled');
+						//$("div.list-group a:first").html("<h4 class='list-group-item-heading weblink-name'>&nbsp</h4>");
+						//$("div.list-group a:first").hide();
+					  }
+		});
+		$("div.list-group a:first").hide();
+		
+		//add Save buttons
+		$("#UpdateButton").after("<br id='MobileBr' style='display: none;'><input type='button' value='"+saveBtntitle+"' onclick='' id='btnSave' title='"+saveBtntitle+"' style='margin-left: 25%;' class='btn btn-primary button submit-btn'><br id='MobileBr' style='display: none;'>");
+		//add apply button
+	  //$("#submitbutton").parent().parent().parent().append("<div class='col-sm-12 clearfix text-center'><input type='button' value='Apply with Same Information' onclick='DirectSelectCourse()' id='applybutton' title='Apply with Same Information' class='btn btn-primary button submit-btn'></div>");
+		//$("#UpdateButton").parent().after("<div class='form-action-container-center'><input type='button' value='"+saveBtntitle+"' style='float: right';  id='btnSave' title='"+saveBtntitle+"' class='btn btn-primary button submit-btn'></div>");
+		 $("#btnSave").click(function(){
+					 $('#ccl1007_nextstepurlpath').val('');
+					    $('*:disabled').prop('disabled', false);//remove disable from all disabled fields so data will be saved
+						initiateSetNavStatus();
+                        Page_ClientValidate('');
+                        $(".validation-summary.alert.alert-error.alert-danger.alert-block").hide();
+                        //hide alert
+						if (typeof (Page_Validators) === 'undefined') window.location.replace(e);//return;
+						 $.each(Page_Validators, function(index, validator) { ValidatorEnable(validator, false);}); 
+					 	document.getElementById('UpdateButton').click();
+				 });
+				 
+	
+  	SetNavStatus();
+  	// initiateSetNavStatus();
+  	  //on change of input validate
+    	//$("input").change(function(){ 
+    	//     initiateSetNavStatus();
+    	//});
+  
+		//$("select").change(function(){ 
+    	//     initiateSetNavStatus();
+    	//});
+		
+		//$("textarea").change(function(){ 
+    	//     initiateSetNavStatus();
+    	//});
+		
+		
+		{% if request.params['id'] %}
+		{% assign applicationid = request.params['id'] %}
+		{% assign ccl1000_application = entities.ccl1000_application[applicationid] %}
+		{% if ccl1000_application %}
+		{% assign courseid = ccl1000_application.ccl1000_programmeid.id %}
+				$("table[data-name='tab_13_section_2']").children("tbody").children("tr").children("td").html("<p>In order to support your application, the below documentation and tasks are required to be completed before your application can be approved.</p><h3>Documentation</h3><div id=Document></div>");
+				$("table[data-name='tab_13_section_4']").children("tbody").children("tr").children("td").html("<h3>Tasks</h3><div id=Task></div>");
+				$("#Document").html("{% for currentDocument in Document.results.entities %}<h5 style='text-indent: 30px;'> {{ currentDocument.ccl1007_subject| xml_escape }} {% if currentDocument.ccl1007_description %}<a href='javascript:void(0);' style='float: right;' onclick='ToggleDocumentDescription({{forloop.index}})'>more details...</a>{% endif %}</h5>{% if currentDocument.ccl1007_description %}<div id ='DocumentDescription{{forloop.index}}' style='margin-left: 30px; display: none;'><p style='text-indent: 30px;'>{{ currentDocument.ccl1007_description| newline_to_br | strip_newlines }}</p></div>{% endif %}{% unless forloop.last %}<div style='height: 1px;'></div>{% endunless %}{% endfor -%}");//<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ currentDocument.ccl1007_description }}</p>
+				$("#Task").html("{% for currentTask in Task.results.entities %}<h5 style='text-indent: 30px;'> {{ currentTask.ccl1007_subject| xml_escape }} {% if currentTask.ccl1007_description %}<a href='javascript:void(0);' style='float: right;' onclick='ToggleTaskDescription({{forloop.index}})'>more details...</a>{% endif %}</h5>{% if currentTask.ccl1007_description %}<div id ='TaskDescription{{forloop.index}}' style='margin-left: 30px; display: none;'><p style='text-indent: 30px;'>{{ currentTask.ccl1007_description| newline_to_br | strip_newlines }}</p></div>{% endif %}{% unless forloop.last %}<div style='height: 1px;'></div>{% endunless %}{% endfor -%}");
+				//$("#Task").html("{% for currentTask in Task.results.entities %}<h5 style='text-indent: 30px;'>{{ currentTask.ccl1007_subject| xml_escape }}</h5>{% if currentTask.ccl1007_description %}<div id ='TaskDescription{{forloop.index}}' style='margin-left: 30px;'><p style='text-indent: 30px;'>{{ currentTask.ccl1007_description| newline_to_br | strip_newlines }}</p></div>{% endif %}{% unless forloop.last %}<div style='height: 1px;'></div>{% endunless %}{% endfor -%}");//<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ currentTask.ccl1007_description }}</p>
+		{% endif  %}
+		{% endif  %}
+		
+		    $("a[title='Associate']").removeClass("btn-info").addClass("btn-primary");
+			$(".entity-grid").on("loaded", function() {
+				$("a[title='Associate']").removeClass("btn-info").addClass("btn-primary");
+			});
+		
+		
+			//Adding field level help text 
+	$('.description').each(function(){
+	var text=$(this).text();
+	$(this).hide();
+	$(this).next().children(":last-child").after('<span title="'+text+'" class="fa fa-question-circle-o" style="font-size:15px;margin-left:5px;margin-top:2px"></span> ');
+	});
+	$('.fa').tooltip();	
+		
+		$("#mainform").show();
+		if($("#MessageLabel") != 'undefined' & $("#ccl1007_nextstepurlpath") != 'undefined' & $("#ccl1007_nextstepurlpath").val()!=null){
+    	  if($("#MessageLabel").length >0 & $("#MessageLabel").text()==='Application Saved Successfully.'  & $("#ccl1007_nextstepurlpath").val().length > 0){
+    			 $("#mainform").hide();
+    		  }
+			  else{
+			  $("#mainform").show();
+			  }
+			  }
+			  else{
+			  $("#mainform").show();
+			  }
+		
+		
+	});
+	function selected(e)
+  {
+    //disable all the validators
+	initiateSetNavStatus();
+	// Page_ClientValidate('');
+	
+	if (typeof (Page_Validators) === 'undefined') window.location.replace(e);//return;
+     $.each(Page_Validators, function(index, validator) { ValidatorEnable(validator, false);}); 
+    var url = true;
+    //If something is true
+	  var isDirty = $(".dirty").length;
+
+    if ( $(".dirty").length) {
+      //trigger your slider
+	  $("#ccl1007_nextstepurlpath").val(e);
+	   $('*:disabled').prop('disabled', false);//remove disable from all disabled fields
+	  //if("{{page.url}}"!="/admission-home/application-academics/") 
+		  
+		document.getElementById('UpdateButton').click();
+		//else
+		//{
+		//document.getElementById('UpdateButton').click();
+		//window.location.replace(e);
+		//}
+    }else{
+				  setTimeout(function () {window.location.replace(e);},500);
+				}
+  }
+  function CreateValidator(fieldid, msg)
+{
+	if (window.jQuery) {
+   (function ($) {
+      if (typeof (Page_Validators) === 'undefined') return;
+	 var newValidator = document.createElement('span');
+			  newValidator.style.display = "none";
+			  newValidator.validationGroup = ""; // Set this if you have set ValidationGroup on the form
+			  newValidator.initialvalue = "";
+			  newValidator.id = fieldid+"Validator";
+			  newValidator.controltovalidate = fieldid;
+			  newValidator.errormessage = msg;
+			  newValidator.evaluationfunction = function () {
+				 var value = $("#"+fieldid).val();
+				 if(value === null || value === "" ) {return false; } else { return true;}
+			  }
+			  Page_Validators.push(newValidator);
+	
+   }(window.jQuery));
+}
+}
+function SetNavStatus(){
+
+	//set completed and uncompleted
+	$("div.list-group a").each(function(i){
+	 if( i !== 0){ //ignore create step
+	  var status =$("#ccl1007_portalstep"+i).val();
+    //set color 
+       if(status == 890240000){
+          $(this).addClass('navcompleted');
+          $(this).removeClass('navuncompleted');
+          //$('.list-group-item.active').css('border-color', '#86b26e', '!important');
+        }else{
+          $(this).addClass('navuncompleted');
+          $(this).removeClass('navcompleted');
+          //$('.list-group-item.active').css('border-color', '#bc393b', '!important');
+        }
+      //get current stage index
+        if($(this).is('[onclick*="{{page.url}}"]')){
+        currentstage = i;
+        }
+      }
+	  });
+}
+
+//
+function initiateSetNavStatus(Completed){
+if (typeof (Page_ClientValidate) === 'undefined' || Completed) return;
+ if(Page_ClientValidate('')){
+    $(".validation-summary.alert.alert-error.alert-danger.alert-block").hide();
+    //hide alert
+     //if validated set thsi stage to completed
+      	 if($("#ccl1007_portalstep"+currentstage).val()!= 890240000)
+      	 {
+        	  $("#ccl1007_portalstep"+currentstage).val('890240000');
+      			$("#ccl1007_portalstep"+currentstage).addClass("dirty");
+      	 }   
+  	   
+  	    }else{
+  	        $("#ccl1007_portalstep"+currentstage).val('');
+  	    }
+  	    SetNavStatus();
+}
+function JumpTo(page){
+var paginationhtml = $("tr.pagination-ys").prop("outerHTML");
+$("#searchview").children("table").children("tbody").empty();
+$("#loadgif").show();		
+var httpReq = new XMLHttpRequest();
+httpReq.open("GET", "/course-search-json/?page="+page, false);
+httpReq.setRequestHeader("Accept", "application/json");
+httpReq.setRequestHeader("Content-Type", "application/json; charset=utf-8");
+httpReq.send(null);
+if (httpReq.status == 200)
+{
+	var Result = JSON.parse(httpReq.responseText);
+	if(Result.totalcount>0)
+	{
+		var html = "";
+		for (var i=0;i<Result.results.length;i++)
+		{
+			html += "<tr> <td data-logicalname='name'> "+Result.results[i].name+"        </td><td data-logicalname='description'> "+Result.results[i].description+" </td><td align='center'> <a class='btn btn-default btn-xs Open' href='#' title='Open' data-id='"+Result.results[i].productid+"' data-name='"+Result.results[i].name+"' data-logicalname='product'> Open </a> </td> <td align='center'> <a class='btn btn-default btn-xs Select' href='#' title='Select' data-id='"+Result.results[i].productid+"' data-name='"+Result.results[i].name+"' data-logicalname='product'> Select </a> </td> </tr> <tr> </tr>";			
+		}
+		html+=paginationhtml;
+		$("#searchview").children("table").children("tbody").html(html);
+		$("a.pagebutton1").each(function() {
+			$(this).attr('onclick',"JumpTo("+$(this).data("page")+")");
+			$(this).attr('href',"javascript:void(0);");
+			$(this).removeAttr('style');
+        });
+		$("a.page"+page).removeAttr('onclick');
+		$("a.page"+page).removeAttr('href');
+		$("a.page"+page).attr('style','color: gray;');
+		
+		$("a.Select").each(function() {
+            $(this).click(function() {
+				$("#ccl1000_programmeid").val($(this).data("id")).addClass("dirty");
+				$("#ccl1000_programmeid_name").val($(this).data("name"));
+				$("#ccl1000_programmeid_entityname").val($(this).data("logicalname"));		
+				$("input[name='search']").val($(this).data("name"));
+				$("#searchview").hide();
+            });
+        });
+		$("#loadgif").hide();		
+	}
+}
+
+}
+function SetCookie(name,value)
+{
+    var Days = 30; 
+    var exp  = new Date();    
+    exp.setTime(exp.getTime() + Days*24*60*60*1000);
+    document.cookie = name + "="+ escape (value) + ";expires=" + exp.toGMTString();
+}
+function getCookie(name)
+{
+    var arr = document.cookie.match(new RegExp("(^| )"+name+"=([^;]*)(;|$)"));
+     if(arr != null) return unescape(arr[2]); return null;
+
+}
+function delCookie(name)
+{
+    var exp = new Date();
+    exp.setTime(exp.getTime() - 1);
+    var cval=getCookie(name);
+    if(cval!=null) document.cookie= name + "="+cval+";expires="+exp.toGMTString();
+}　
+function ToggleDocumentDescription(id)
+{
+	var id2 ='#DocumentDescription' + id;
+	$(id2).toggle();
+}　
+function ToggleTaskDescription(id)
+{
+	var id2 ='#TaskDescription' + id;
+	$(id2).toggle();
+}　
+</script>

@@ -1,0 +1,293 @@
+<div class="page-heading">
+    <div class="container">
+     <ul class="breadcrumb">
+       {% for crumb in page.breadcrumbs -%}
+         <li>
+           <a href="{{ crumb.url }}">{{ crumb.title }}</a>
+         </li>
+       {% endfor -%}
+       <li><a href="/application-new-application/">Application</a></li>
+       <li class="active">Course Search</li>
+     </ul>
+     <div class="page-header">
+       <h1>Course Search</h1>
+     </div>
+     </div>
+ </div> 
+ <div class="container">
+ <div id="mainform" style="display: none;">
+     <div class="row">
+         <!-- Creating the Contact case menu from web links set for the web page -->
+     
+         <div class="col-sm-12 col-lg-12">
+         <div id="Validation" class="validation-summary alert alert-error alert-danger alert-block" role="alert" tabindex="0" aria-label="Please select an Academic Year before apply." style="display: none;"><h4 class="validation-header"><span role="presentation" class="fa fa-info-circle"></span> Please select an Academic Year before apply.</h4>
+ </div>
+             {% block main %}
+         {% if page.adx_entitylist %}
+         <div id="searchdiv" style="min-height: 400px; display: none;">
+         {% include 'entity_list' key:'5362DD61-4898-E711-80FF-E0071B7FE041' %}  
+         </div>
+         {% endif %}
+ 
+             {% if page.adx_entityform %}
+                         {% entityform id: page.adx_entityform.id %}
+             {% endif %}
+                     
+            {% endblock %}
+             <!-- Display rest of the form -->
+         </div>
+         </div>
+   </div>
+ </div>
+ <style type="text/css">
+ .btn-is-disabled {
+   pointer-events: none; /* Disables the button completely. Better than just cursor: default; */
+   @include opacity(0.7);
+ }
+ /* hide submit button */
+ #UpdateButton {
+ display:none;
+ }
+ /*set the nav item border color*/
+ .table > thead > tr > th, .table > tbody > tr > th, .table > tfoot > tr > th, .table > thead > tr > td, .table > tbody > tr > td, .table > tfoot > tr > td
+ {
+ vertical-align:middle;
+ }
+ @media screen and (max-width: 768px) {
+    #EntityFormControl_d2b0a6da6d94e711810370106faaf8c1_EntityFormView > div.tab.clearfix > div > div > fieldset > table > tbody > tr:nth-child(1) > td.clearfix.cell.lookup.form-control-cell
+        {
+        padding-top: 20px;
+        }
+        .table-fluid td.CourseDetailsTd:before {
+            margin-left: -13.5rem;
+        }
+}
+ 
+ </style>
+ <script type="text/javascript">
+     var currentstage;
+     var viewloaded = false;
+     var buttonreplaced = false;
+     
+     function GetQueryString(name)
+   {
+      var reg = new RegExp("(^|&)"+ name +"=([^&]*)(&|$)");
+      var r = window.location.search.substr(1).match(reg);
+      if(r!=null) return unescape(r[2]); return null;
+   }
+     
+     $(document).ready(function() {
+         var applicationid = GetQueryString("oapplicationid");
+         if(applicationid != null)
+         {
+           $("#ccl1007_originalapplicationid").val(applicationid);
+         }
+         //table code
+         //if($("input[name='search']").val()=='')
+           //{$("#searchview").hide();}
+     
+         $("#ccl1000_programmeid_label").parent().next().hide();
+         $("#ccl1000_academicyearid_label").parent().parent().hide();
+         $("#ccl1007_originalapplicationid_label").parent().parent().hide();
+         $('#InsertButton').hide();
+         $("h2:contains('Start New Application')").hide();
+         
+         CreateValidator("ccl1000_academicyearid", "Please select an Academic Year before apply.");
+         $("#ccl1000_academicyearid_label").parent().attr('class', 'info required');
+         
+         $("#ccl1000_programmeid_label").parent().after("<div id='search' class='control'></div>");
+         $("#searchdiv").appendTo($("#search"));
+                     
+         $(".entity-grid[data-selected-view='82b13e85-4998-e711-8103-70106faaf8c1']").on("loaded", function() {
+         $(".pull-right.toolbar-actions").first().removeClass("pull-right");
+         $("thead").first().children().children().removeAttr("style");
+         
+         $("thead").first().children().children().first().attr("style","width: 35%;");
+         if(!viewloaded){
+         $(".input-group.pull-left.view-search.entitylist-search").first().attr("style","width: 100%;");
+         $("thead").first().children().append("<th id='academicyearth' width='140px' align='center' style='width: 120px;'>Academic Year</th><th id='datailth' width='1' align='center' style='width: 120px;'>Course Details</th><th id='actionth' width='1' align='center' style='text-align: center;width: 70px;'></th>");
+         viewloaded = true;
+         }
+         $("input.query.form-control[placeholder='Search']").attr("style","width: 99%;");
+         $("#datailth").attr("style","width: 120px;");
+         $("#actionth").attr("style","width: 70px;");
+         
+         $("thead").next().children().each(function() {
+           var html1 = "<td data-th='Academic Year' aria-label='Academic Year' style='width: 140px;'><select class='form-control picklist academicyear' data-id='"+$(this).data("id")+"'><option value=''></option></select></td><td align='center' class='CourseDetailsTd' data-th='Course Details' aria-label='Course Details' style='width: 120px;'> <button class='btn btn-primary btn-xs Open' title='Open' data-id='"+$(this).data("id")+"' data-name='"+$(this).data("name")+"' data-logicalname='product' > Open</i> </button> </td> <td align='center'> <button class='btn btn-primary btn-xs Select' title='Apply' data-id='"+$(this).data("id")+"' data-name='"+$(this).data("name")+"' data-logicalname='product' > Apply</i> </button> </td>";
+           $(this).append(html1);
+     });
+             
+         $("#academicyearth").html("Academic Year <font color='#a94442'>*</font> ")
+         
+         $("select.academicyear").each(function() {
+           var httpReq = new XMLHttpRequest();
+           httpReq.open("GET", "/course-session-json/?id="+$(this).data("id"), false);
+           httpReq.setRequestHeader("Accept", "application/json");
+           httpReq.setRequestHeader("Content-Type", "application/json; charset=utf-8");
+           httpReq.send(null);
+           if (httpReq.status == 200)
+           {
+               var Result = JSON.parse(httpReq.responseText);
+               if(Result.totalcount>0)
+               {
+               var new_arr=[];
+                   for (var i=0;i<Result.results.length;i++)
+                   {
+                       if(Result.results[i].ccl1000_academicyearid!="")
+                       {
+                           var items=Result.results[i].ccl1000_academicyearid;
+                           if($.inArray(items,new_arr)==-1) {
+                 　　　　new_arr.push(items);
+                                 $(this).append("<option value='"+Result.results[i].ccl1000_academicyearid+"'>"+Result.results[i].ccl1000_academicyear+"</option>");
+                           }
+                       }				
+                   }
+               }
+           }
+           
+           $(this).change(function () {
+             if(this.value != "")
+             {
+           var httpReq = new XMLHttpRequest();
+               httpReq.open("GET", "/course-session-json/?id="+$(this).data("id") + "&academicyearid=" + this.value, false);
+               httpReq.setRequestHeader("Accept", "application/json");
+               httpReq.setRequestHeader("Content-Type", "application/json; charset=utf-8");
+               httpReq.send(null);
+               if (httpReq.status == 200)
+               {
+                   var Result = JSON.parse(httpReq.responseText);
+                   if(Result.totalcount == 0)
+                   {
+                     $("button.Select[data-id='"+$(this).data("id")+"']").addClass("disabled");
+                     $("button.Select[data-id='"+$(this).data("id")+"']").attr("title","The deadline for this Programme has passed");
+                     $("button.Select[data-id='"+$(this).data("id")+"']").unbind("click");
+                     $("button.Select[data-id='"+$(this).data("id")+"']").bind("click", function() {
+                       return false;
+                     });
+                   }
+                   else
+                   {
+                     $("button.Select[data-id='"+$(this).data("id")+"']").removeClass("disabled");
+                     $("button.Select[data-id='"+$(this).data("id")+"']").attr("title","Apply");
+                     $("button.Select[data-id='"+$(this).data("id")+"']").unbind("click");
+                     $("button.Select[data-id='"+$(this).data("id")+"']").bind("click", function() {
+                         $("#ccl1000_programmeid").val($(this).data("id")).addClass("dirty");
+                         $("#ccl1000_programmeid_name").val($(this).data("name"));
+                         $("#ccl1000_programmeid_entityname").val($(this).data("logicalname"));		
+                         $("input[placeholder='Search']").val($(this).data("name"));
+                         
+                         $("#ccl1000_academicyearid").val($($(this).parent().prev().prev().children()[0]).val()).addClass("dirty");
+                         $("#ccl1000_academicyearid_entityname").val("ccl1000_academicyear");		
+                         
+                         if($("#ccl1000_academicyearid").val()=="")
+                         {
+                           $("#Validation").show();
+                           return false;
+                         }
+                         else
+                         {
+                           $("#Validation").hide();
+                           document.getElementById('InsertButton').click();
+                         }
+               });
+                   }
+               }
+             }
+       });
+     });
+         
+         $("button.Select").each(function() {
+       $(this).bind("click", function() {
+                 $("#ccl1000_programmeid").val($(this).data("id")).addClass("dirty");
+                 $("#ccl1000_programmeid_name").val($(this).data("name"));
+                 $("#ccl1000_programmeid_entityname").val($(this).data("logicalname"));		
+                 $("input[placeholder='Search']").val($(this).data("name"));
+                 
+                 $("#ccl1000_academicyearid").val($($(this).parent().prev().prev().children()[0]).val()).addClass("dirty");
+                 $("#ccl1000_academicyearid_entityname").val("ccl1000_academicyear");		
+                 
+                 if($("#ccl1000_academicyearid").val()=="")
+                 {
+                   $("#Validation").show();
+                   return false;
+                 }
+                 else
+                 {
+                   $("#Validation").hide();
+                   document.getElementById('InsertButton').click();
+                 }
+                 //alert($($(this).parent().prev().prev().children()[0]).val());
+                 //$("thead").parent().hide();
+                 //$(".view-pagination").first().hide();
+                 //$("#mainform").hide();
+       });
+     });
+         
+         $("button.Open").each(function() {
+         $(this).click(function() {
+                   var httpReq = new XMLHttpRequest();
+                   httpReq.open("GET", "/course-search-json/?id=" + $(this).data("id"), false);
+                   httpReq.setRequestHeader("Accept", "application/json");
+                   httpReq.setRequestHeader("Content-Type", "application/json; charset=utf-8");
+                   httpReq.send(null);
+                   if (httpReq.status == 200) {
+                       var Result = JSON.parse(httpReq.responseText);
+                       if (Result.totalcount > 0) {
+                         window.open(Result.results[0].producturl);
+                       //location.href = Result.results[0].producturl;
+                       }
+                   } 
+         });
+     });
+         
+         $("button[title='Search Results']").each(function() {
+       $(this).click(function() {
+             $("thead").parent().show();
+             //$(".view-pagination").first().show();
+       });
+     });
+ 
+         //$("span:contains('Search Results')").first().next().hide();
+         $("span:contains('Search Results')").first().next().remove();
+         if(!buttonreplaced)
+         {
+         $("span:contains('Search Results')").first().after("Search");
+         $("thead").parent().hide();
+     $(".view-pagination").first().hide();
+         buttonreplaced = true;
+         }
+         $("span:contains('Search Results')").first().parent().addClass("btn-primary");
+         
+         $("#searchdiv").show();
+         
+         setTimeout(function () { 
+       if($('.view-empty.message').attr('style')=="display: block;")
+             $(".view-pagination").first().hide();
+     }, 600);
+         });
+         
+         $("#mainform").show();
+     });
+ 
+     function CreateValidator(fieldid, msg)
+     {
+         if (window.jQuery) {
+        (function ($) {
+           if (typeof (Page_Validators) === 'undefined') return;
+          var newValidator = document.createElement('span');
+                   newValidator.style.display = "none";
+                   newValidator.validationGroup = ""; // Set this if you have set ValidationGroup on the form
+                   newValidator.initialvalue = "";
+                   newValidator.id = fieldid+"Validator";
+                   newValidator.controltovalidate = fieldid;
+                   newValidator.errormessage = msg;
+                   newValidator.evaluationfunction = function () {
+                      var value = $("#"+fieldid).val();
+                      if(value === null || value === "") {return false; } else { return true;}
+                   }
+                   Page_Validators.push(newValidator);
+         
+        }(window.jQuery));
+     }
+     }
+ </script>
